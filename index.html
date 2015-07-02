@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Prueba Three.js</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, user-scalable=no" />
+        <style type="text/css">
+            body {
+              margin: 0;
+              padding: 0;
+              background-color: #000;
+              overflow: hidden;
+            }
+            canvas {
+              display: block;
+              margin: 0 auto;
+            }
+            #boton {
+                position: absolute;
+                top: 10px;
+                left: 10px;
+                z-index: 60;
+            }
+            #hud {
+              position: absolute;
+              z-index: 10;
+              top: 0;
+              left: 0;
+              right: 0;
+            }
+        </style>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/three.js/r69/three.min.js"></script>
+        <script src="/lib/Promise.min.js"></script>
+
+        <script src="/js/dr.trial.escenario.js"></script>
+        <script src="/js/dr.characters.js"></script>
+        <script src="/js/dr.audiomixer.js"></script>
+        <script src="/js/dr.trial.animaciones.js"></script>
+        <script src="/js/dr.trial.nsd.js"></script>
+        <script src="/js/dr.scripttest.js"></script>
+        <script type="application/javascript">
+            Promise.DOMContentLoaded([
+                DR.Audio.loadBuffer('bg.mp3', 'juicio')
+            ]).then(function(promesas) {
+                var sonido = promesas[0];
+                
+                DR.Escenario.inicializar();
+                DR.Escenario.construir(DR.escena);
+                document.body.appendChild(DR.renderer.domElement);
+                document.body.appendChild(DR.hud.canvas);
+            
+                //  renderer.setViewport( 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT );
+                //renderer.clear();
+                // left side
+                //renderer.setViewport( 1, 1,   0.5 * SCREEN_WIDTH - 2, SCREEN_HEIGHT - 2 );
+                //renderer.render( scene, chaseCamera );
+                // right side
+                //renderer.setViewport( 0.5 * SCREEN_WIDTH + 1, 1,   0.5 * SCREEN_WIDTH - 2, SCREEN_HEIGHT - 2 );
+                //renderer.render( scene, topCamera );
+            
+                function stop() {
+                    toggle = false;
+                    sonido.stop();
+                    document.getElementById('boton').textContent = 'Reiniciar';
+                    
+                    new Animacion().tutorial();
+                }
+            
+                var toggle = false;
+                document.getElementById('boton').addEventListener('click', function() {
+                    toggle = !toggle;
+                    if(toggle) {
+                        sonido.play(0);
+                        this.textContent = 'Detener';
+                        new Animacion()
+                            .tutorialToNSD()
+                            .iniciarNSD([
+                                'Tsumiki’s Examination Results',
+                                'Nidai’s Testimony',
+                                'Mioda’s Testimony',
+                                'Nanami’s Testimony',
+                                'Souda’s Testimony'
+                            ])
+                            .loadScript(discusion)
+                            .delay(2000).promise
+                            .then(stop, function(e) {
+                                stop();
+                                console.error(e.stack);
+                            });
+                    } else {
+                        this.textContent = 'Reiniciar';
+                        cancelAnimationFrame(Animacion.cuadro);
+                    }
+                }, false);
+                
+                new Animacion().tutorial();
+            });
+        </script>
+    </head>
+    <body>
+        <button id="boton">Iniciar</button>
+    </body>
+</html>
