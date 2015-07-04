@@ -190,6 +190,12 @@ Object.defineProperties(Cilindro.prototype, {
   dibujarCilindro: {
     value: function() {
       var i, ang;
+      
+      this.context.save();
+      
+      this.context.beginPath();
+      this.context.arc(0, 0, this.r + 10, 0, Math.PI * 2);
+      this.context.clip();
 
       this.context.globalCompositeOperation = 'source-over';
 
@@ -213,6 +219,8 @@ Object.defineProperties(Cilindro.prototype, {
         this.context.arc(this.r * 1.67 * Math.cos(ang), this.r * 1.67 * Math.sin(ang), this.r * 0.76, 0, Math.PI * 2);
         this.context.fill();
       }
+      
+      this.context.restore();
     }
   },
   dibujarArcoExteriorDR2: {
@@ -333,10 +341,6 @@ Object.defineProperties(Cilindro.prototype, {
         this.context.translate(this.x, this.y);
         this.context.rotate(-0.1);
 
-        this.dibujarCilindro();
-        this.dibujarArcoInteriorDR2(time / 1.2);
-        this.dibujarArcoExteriorDR2(time / 1.2);
-
         if (bullet_index >= 0) {
             normalized = bullets_total + (bullets_total % 2) - 1;
             limit_upper = normalized / -2;
@@ -357,7 +361,7 @@ Object.defineProperties(Cilindro.prototype, {
                 // Horizontal entry from right
                 if (inter_index < 0.7) {
                     bullet.x += this.width * (1 - Math.min(1, inter_index / 0.7));
-                    this.giro = Math.PI / -3 * Math.min(1, inter_index / 0.7);
+                    this.giro = (Math.PI / -3) * (inter_index / 0.7);
                 }
                 
                 else if (bullets_total > 1) {
@@ -383,9 +387,13 @@ Object.defineProperties(Cilindro.prototype, {
             }
         }
 
+        this.dibujarCilindro();
+        this.dibujarArcoInteriorDR2(time / 1.2);
+        this.dibujarArcoExteriorDR2(time / 1.2);
+
         this.context.restore();
         
-        return (2 * time > bullets_total + 4.5);
+        return (2 * time > bullets_total + 8);
     }
   }
 });
