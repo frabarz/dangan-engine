@@ -233,7 +233,7 @@ DR.Escenario = (function () {
             i, angulo,
             output = [];
 
-        textura = THREE.ImageUtils.loadTexture('/texturas/chapter1-wallpaper.png');
+        textura = THREE.ImageUtils.loadTexture('/textures/chapter1-wallpaper.png');
         textura.wrapT = THREE.RepeatWrapping;
         textura.wrapS = THREE.RepeatWrapping;
         textura.repeat.set(1, 1);
@@ -257,7 +257,7 @@ DR.Escenario = (function () {
             output.push(malla);
         }
 
-        textura = THREE.ImageUtils.loadTexture('/texturas/chapter1-guardapolvo.png');
+        textura = THREE.ImageUtils.loadTexture('/textures/chapter1-guardapolvo.png');
 
         material = new THREE.MeshBasicMaterial({
             color: 0xAAAAAA,
@@ -287,7 +287,7 @@ DR.Escenario = (function () {
             i, angulo,
             output = [];
 
-        textura = THREE.ImageUtils.loadTexture("/texturas/alfombraR.png");
+        textura = THREE.ImageUtils.loadTexture("/textures/alfombraR.png");
         textura.wrapT = THREE.RepeatWrapping;
         textura.repeat.set(1, 3);
 
@@ -318,7 +318,7 @@ DR.Escenario = (function () {
             i, angulo,
             output = [];
 
-        textura = THREE.ImageUtils.loadTexture("/texturas/chapter1-salida.png");
+        textura = THREE.ImageUtils.loadTexture("/textures/chapter1-salida.png");
 
         material = new THREE.MeshBasicMaterial({
             color: 0xEEEEEE,
@@ -350,7 +350,7 @@ DR.Escenario = (function () {
             adicional = Math.atan(desviacion / distancia),
             output = [];
 
-        textura = THREE.ImageUtils.loadTexture("/texturas/chapter1-marcos.png");
+        textura = THREE.ImageUtils.loadTexture("/textures/chapter1-marcos.png");
         textura.wrapT = THREE.RepeatWrapping;
         textura.repeat.set(1, 10);
 
@@ -392,7 +392,7 @@ DR.Escenario = (function () {
 
         //  ALFOMBRA RADIAL
         //  radioInt = 17.5, radioExt = 26.5, segmentos = 32
-        textura = THREE.ImageUtils.loadTexture("/texturas/alfombraR.png");
+        textura = THREE.ImageUtils.loadTexture("/textures/alfombraR.png");
         textura.wrapS = textura.wrapT = THREE.RepeatWrapping;
         textura.repeat.set(1, 1);
 
@@ -433,7 +433,7 @@ DR.Escenario = (function () {
             i, j, k,
             output = [];
 
-        textura = THREE.ImageUtils.loadTexture("/texturas/wood.jpg");
+        textura = THREE.ImageUtils.loadTexture("/textures/wood.jpg");
 
         //  BASES DE MADERA
         //  radioSup = 16.5, radioInf = 14.5, altura = 1, segmRadiales = 16, segmVerticales = 1, abierto = true
@@ -503,7 +503,7 @@ DR.Escenario = (function () {
 
         //  TUBO CIRCULAR
         //  radio = 18.2, diametro = 0.35, segmRadiales = 16, segmTubulares = 80
-        textura = THREE.ImageUtils.loadTexture("/texturas/clouds.jpg");
+        textura = THREE.ImageUtils.loadTexture("/textures/clouds.jpg");
         textura.wrapT = textura.wrapS = THREE.RepeatWrapping;
         textura.repeat.set(30, 1);
 

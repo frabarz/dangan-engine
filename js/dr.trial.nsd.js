@@ -4,9 +4,9 @@ DR.NSD = (function(DR) {
     "use strict";
     
     var bullet_img = [new Image(), new Image(), new Image()];
-    bullet_img[0].src = '/sprites/bullet_1.svg';
-    bullet_img[1].src = '/sprites/bullet_2.svg';
-    bullet_img[2].src = '/sprites/bullet_3.svg';
+    bullet_img[0].src = '/textures/bullet_1.svg';
+    bullet_img[1].src = '/textures/bullet_2.svg';
+    bullet_img[2].src = '/textures/bullet_3.svg';
     
     Animacion.prototype.iniciarNSD = function(balas) {
         this.promise = this.promise
@@ -162,14 +162,6 @@ Object.defineProperties(Bala.prototype, {
 
       this.context.restore();
     }
-  },
-  preservar: {
-    value: function() {
-      var y = 0
-      this.context.drawImage(a, this.width * 0.27, y - 55, 128, 110);
-      this.context.drawImage(aa, this.width * 0.27 + 128, y - 55, ancho - 50, 110);
-      this.context.drawImage(aaa, this.width * 0.27 + 128 + ancho - 50 - 1, y - 55, 64, 110);
-    }
   }
 });
 
@@ -322,13 +314,18 @@ Object.defineProperties(Cilindro.prototype, {
             normalized, limit_lower, limit_upper,
             bullet, inter_index;
         
+        // time < t, t is the amount of seconds for the cilinder intro from left
         if (time < 0.25)
             // x = [-2 * r] -> [-0.1 * r]
             this.x = (7.6 * time - 2) * this.r;
         else {
             this.x = -0.1 * this.r;
             bullets_total = this.bullets.length;
-            bullet_index = Math.min(1.8 * time - 0.45, bullets_total);
+            
+            // k * time - (k*t):
+            // k sets the speed of the bullets animation
+            // bullet_index -> [0, total amount of bullets]
+            bullet_index = Math.min(2 * time - 0.5, bullets_total);
         }
         
         this.context.clearRect(0, 0, this.width, this.height);
@@ -347,10 +344,13 @@ Object.defineProperties(Cilindro.prototype, {
             
             i = bullets_total;
             while (i--) {
+                // A normalized index [0, 1] for every cicle
                 inter_index = Math.max(0, bullet_index - i);
                 
                 bullet = this.bullets[i];
-                bullet.x = this.r * 1.4;
+
+                // Circular aligning
+                bullet.x = this.r * (1.5 - 0.2 * Math.sin(Math.PI / 2 * Math.abs(bullet.y) * 0.3));
                 bullet.y = bullet.order - Math.floor(bullet_index);
                 bullet.opacity = 1;
                 
@@ -360,22 +360,24 @@ Object.defineProperties(Cilindro.prototype, {
                     this.giro = Math.PI / -3 * Math.min(1, inter_index / 0.7);
                 }
                 
-                // Vertical movement one place up
-                if (inter_index - Math.floor(inter_index) > 0.7
-                 && inter_index - Math.floor(inter_index) < 1)
-                    bullet.y -= (inter_index - Math.floor(inter_index) - 0.7) / 0.3;
-                
-                // Upper limit
-                if (bullet.y < limit_upper)
-                    bullet.y += bullets_total;
-                
-                // Upper opacity fade-out
-                if (bullet.y < limit_upper + 0.5)
-                    bullet.opacity = -2 * (limit_upper - bullet.y);
-                
-                // Lower opacity fade-in
-                if (bullet.y > limit_lower - 0.5)
-                    bullet.opacity = 2 * (limit_lower - bullet.y);
+                else if (bullets_total > 1) {
+                    // Vertical movement one place up
+                    if (inter_index - Math.floor(inter_index) > 0.7
+                    && inter_index - Math.floor(inter_index) < 1)
+                        bullet.y -= (inter_index - Math.floor(inter_index) - 0.7) / 0.3;
+                    
+                    // Upper limit
+                    if (bullet.y < limit_upper)
+                        bullet.y += bullets_total;
+                    
+                    // Upper opacity fade-out
+                    if (bullet.y < limit_upper + 0.5)
+                        bullet.opacity = -2 * (limit_upper - bullet.y);
+                    
+                    // Lower opacity fade-in
+                    if (bullet.y > limit_lower - 0.5)
+                        bullet.opacity = 2 * (limit_lower - bullet.y);
+                }
                 
                 bullet.draw(this.r);
             }
