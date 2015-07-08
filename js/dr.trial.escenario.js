@@ -581,7 +581,7 @@ DR.Escenario = (function () {
 
         renderer = new THREE.WebGLRenderer({
             antialias: true,
-//            preserveDrawingBuffer: true
+			//            preserveDrawingBuffer: true
         });
         renderer.setClearColor(0x000000, 1);
         renderer.setSize(canvasWidth, canvasHeight);
@@ -606,7 +606,7 @@ DR.Escenario = (function () {
         escena.add(light);
 
         function renderizar() {
-           renderer.render(escena, camara);
+			renderer.render(escena, camara);
         }
 
         DR.renderizar = renderizar;
@@ -615,17 +615,17 @@ DR.Escenario = (function () {
             width: canvasWidth,
             height: canvasHeight
         };
-        
+
         DR.renderer = renderer;
         DR.escena = escena;
         DR.camara = camara;
         DR.hud = hud.getContext('2d');
-        
+
         light = canvasHeight = canvasWidth = null;
     }
-    
-    DR.hudClear = function() {
-      DR.hud.clearRect(0, 0, DR.canvas.width, DR.canvas.height);
+
+    DR.hudClear = function () {
+		DR.hud.clearRect(0, 0, DR.canvas.width, DR.canvas.height);
     }
 
     return {
@@ -634,7 +634,7 @@ DR.Escenario = (function () {
             var num = DR.CHARACTERS.length,
                 flag = '';
             while (num--)
-                flag += ~~(! DR.CHARACTERS[num]);
+                flag += ~~(!DR.CHARACTERS[num]);
 
             return flag;
         },

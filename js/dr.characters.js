@@ -1,3 +1,5 @@
+var DR = DR || {};
+
 DR.CHARACTERS = [];
 
 DR.CHARACTERS[ 0] = "naegi";
@@ -19,16 +21,16 @@ DR.CHARACTERS[15] = "yamada";
 
 DR.Sprites = (function () {
 	"use strict";
-	
+
 	var textures = {};
-	
+
 	function changeSprite(character, sprite) {
 		if (character in textures)
 			textures[character].image.src = '/sprites/' + character + '/' + sprite + '.png';
 		else
 			throw new Error('Personaje no participa del juicio: ' + character);
 	}
-	
+
 	function getTexture(character) {
 		if (!character)
 			return;
@@ -39,7 +41,7 @@ DR.Sprites = (function () {
 		return textures[character];
 	}
 
-	
+
 	return {
 		getTexture: getTexture,
 		change: changeSprite

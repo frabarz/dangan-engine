@@ -1,6 +1,5 @@
 /* global Promise */
 /* global THREE */
-/* global render */
 (function (DR) {
     "use strict";
 
@@ -76,24 +75,24 @@
         value: 0,
         writable: true
     });
-    
+
     Animacion.prototype.loadScript = function (script) {
         var self = this;
-        script.forEach(function(item) {
+        script.forEach(function (item) {
             if ('sprite' in item)
                 self.cambiarSprite(item.character, item.sprite);
-            
+
             self.transicion(item);
         });
-        
+
         return this;
     };
-    
-    Animacion.prototype.delay = function(time) {
-        this.promise = this.promise.then(function() {
+
+    Animacion.prototype.delay = function (time) {
+        this.promise = this.promise.then(function () {
             return Promise.delay(time);
         });
-        
+
         return this;
     };
 
@@ -132,41 +131,41 @@
     var INTERPRETE = {
         Position: function (param) {
             var route = new Trayectoria({
-                    start: new Coordenada(param.position.start || DR.camara.position),
-                    end: new Coordenada(param.position.end || param.position),
-                    route: param.position.route || param.route
-                });
-            
+				start: new Coordenada(param.position.start || DR.camara.position),
+				end: new Coordenada(param.position.end || param.position),
+				route: param.position.route || param.route
+			});
+
             this.apply = function (t) {
                 DR.camara.position.copy(route.getVector(t));
             };
-            
+
             param = null;
         },
         LookAt: function (param) {
             var route = new Trayectoria({
-                    start: new Coordenada(param.lookat.start || new THREE.Vector3(0, 0, -10).applyMatrix4(DR.camara.matrixWorld)),
-                    end: new Coordenada(param.lookat.end || param.lookat),
-                    route: param.lookat.route || param.route
-                });
+				start: new Coordenada(param.lookat.start || new THREE.Vector3(0, 0, -10).applyMatrix4(DR.camara.matrixWorld)),
+				end: new Coordenada(param.lookat.end || param.lookat),
+				route: param.lookat.route || param.route
+			});
 
             this.apply = function (t) {
                 DR.camara.lookAt(route.getVectorThree(t));
             };
-            
+
             param = null;
         },
         Up: function (param) {
             var route = new Trayectoria({
-                    start: new Coordenada(param.up.start || DR.camara.up),
-                    end: new Coordenada(param.up.end || param.up),
-                    route: param.up.route || param.route
-                });
+				start: new Coordenada(param.up.start || DR.camara.up),
+				end: new Coordenada(param.up.end || param.up),
+				route: param.up.route || param.route
+			});
 
             this.apply = function (t) {
                 DR.camara.up.copy(route.getVector(t));
             };
-            
+
             param = null;
         },
         FOV: function (param) {
@@ -177,7 +176,7 @@
                 DR.camara.fov = start + delta * t;
                 DR.camara.updateProjectionMatrix();
             };
-            
+
             param = null;
         }
     };
@@ -274,37 +273,37 @@
 
         return this;
     };
-    
+
     Animacion.prototype.tutorialToNSD = function () {
         this.promise = this.promise.then(function (resolve, reject) {
             DR.camara.up.set(0, 0, 1);
-            
+
             return new Promise(function (resolve) {
                 var inicio,
                     start = Math.PI + new Coordenada(DR.camara.position).p,
                     darkFadeIn = new THREE.Sprite();
-                
+
                 cancelAnimationFrame(Animacion.cuadro);
-                
+
                 function transition(now) {
                     var delta = (now - inicio) / 1000,
                         angle = start - (delta * Math.PI),
                         sin = Math.sin(angle),
                         cos = Math.cos(angle);
-    
+
                     DR.camara.position.set(-28 * cos, -28 * sin, 33 - (delta * 7));
                     DR.camara.lookAt(new THREE.Vector3(19 * cos, 19 * sin, 9));
-                    
+
                     if (delta > 1) {
                         DR.hud.clearRect(0, 0, DR.canvas.width, DR.canvas.height);
                         DR.hud.beginPath();
-                        DR.hud.fillStyle = 'rgba(0, 0, 0, '+ (delta - 1) +')';
+                        DR.hud.fillStyle = 'rgba(0, 0, 0, ' + (delta - 1) + ')';
                         DR.hud.rect(0, 0, DR.canvas.width, DR.canvas.height);
                         DR.hud.fill();
                     }
-        
+
                     DR.renderizar();
-                    
+
                     if (delta < 2)
                         Animacion.cuadro = requestAnimationFrame(transition);
                     else {
@@ -312,7 +311,7 @@
                         resolve();
                     }
                 };
-                
+
                 inicio = ('performance' in window ? performance.now() : Date.now());
                 transition(inicio);
             });
@@ -324,24 +323,24 @@
     Animacion.prototype.cuestionamiento = function () {
         return this
             .cortarHacia({
-            fov: 40,
-            up: new Coordenada([0, 0, 1]),
-            position: new Coordenada({ r: 3, p: 1.5707963267, z: 14 }),
-            lookat: new Coordenada({ r: 19, p: 1.5707963267, z: 13 })
-        })
+				fov: 40,
+				up: new Coordenada([0, 0, 1]),
+				position: new Coordenada({ r: 3, p: 1.5707963267, z: 14 }),
+				lookat: new Coordenada({ r: 19, p: 1.5707963267, z: 13 })
+			})
             .transicion({
-            duration: 600,
-            position: new Coordenada({ r: 1, p: 1.5707963267, z: 14 }),
-            lookat: new Coordenada({ r: 19, p: 1.5707963267, z: 13 }),
-            easing: 'inOutQuad'
-        })
+				duration: 600,
+				position: new Coordenada({ r: 1, p: 1.5707963267, z: 14 }),
+				lookat: new Coordenada({ r: 19, p: 1.5707963267, z: 13 }),
+				easing: 'inOutQuad'
+			})
             .transicion({
-            duration: 600,
-            fov: 60,
-            position: new Coordenada({ r: 10, p: 1.5707963267, z: 15 }),
-            lookat: new Coordenada({ r: 19, p: 1.5707963267, z: 13.4 }),
-            easing: 'inOutQuad'
-        });
+				duration: 600,
+				fov: 60,
+				position: new Coordenada({ r: 10, p: 1.5707963267, z: 15 }),
+				lookat: new Coordenada({ r: 19, p: 1.5707963267, z: 13.4 }),
+				easing: 'inOutQuad'
+			});
     };
 
     function Coordenada(input) {
@@ -387,7 +386,7 @@
     Object.defineProperties(Coordenada.prototype, {
         toString: {
             writable: false,
-            value: function() {
+            value: function () {
                 return JSON.stringify(this.vectorThree);
             }
         },
@@ -494,116 +493,116 @@
             }
         }
     });
-    
+
     function Trayectoria(param) {
-        param.center = param.center || {x: 0, y: 0, z: 0};
-        
+        param.center = param.center || { x: 0, y: 0, z: 0 };
+
         this.cx = param.center.x;
         this.cy = param.center.y;
         this.cz = param.center.z;
-        
+
         this.ax = param.start.x - this.cx;
         this.ay = param.start.y - this.cy;
         this.az = param.start.z - this.cz;
         this.ar = Math.sqrt(this.ax * this.ax + this.ay * this.ay + (param.type == 'spherical' ? this.az * this.az : 0));
         this.ap = Math.atan2(this.ay, this.ax);
         this.at = Math.acos(this.az / Math.sqrt(this.ax * this.ax + this.ay * this.ay + this.az * this.az));
-        
+
         this.bx = param.end.x - this.cx;
         this.by = param.end.y - this.cy;
         this.bz = param.end.z - this.cz;
         this.br = Math.sqrt(this.bx * this.bx + this.by * this.by + (param.type == 'spherical' ? this.bz * this.bz : 0));
         this.bp = Math.atan2(this.by, this.bx);
         this.bt = Math.acos(this.bz / Math.sqrt(this.bx * this.bx + this.by * this.by + this.bz * this.bz));
-        
+
         if (this.bp - this.ap > Math.PI)
             this.ap += 2 * Math.PI;
         else if (this.bp - this.ap < -Math.PI)
             this.bp += 2 * Math.PI;
-        
+
         this.route = param.route || 'linear';
-        
-        this.geometry = new THREE.SphereGeometry( 0.1, 4, 4 );
+
+        this.geometry = new THREE.SphereGeometry(0.1, 4, 4);
         this.material = new THREE.MeshBasicMaterial({ color: Math.floor(Math.random() * 0xFFFFFF) });
-        
+
         param = null;
     }
-    
+
     Object.defineProperties(Trayectoria.prototype, {
         getVector: {
-            value: function(t) {
-                return {x: this.getX(t), y: this.getY(t), z: this.getZ(t)};
+            value: function (t) {
+                return { x: this.getX(t), y: this.getY(t), z: this.getZ(t) };
             }
         },
         getVectorThree: {
-            value: function(t) {
+            value: function (t) {
                 return new THREE.Vector3(this.getX(t), this.getY(t), this.getZ(t));
             }
         },
         getX: {
-            value: function(t) {
+            value: function (t) {
                 if (this.route == 'spherical')
                     return this.cx + this.getR(t) * Math.sin(this.getT(t)) * Math.cos(this.getP(t));
-                
+
                 if (this.route == 'circular')
                     return this.cx + this.getR(t) * Math.cos(this.getP(t));
-                
-                return (1-t) * this.ax + t * this.bx;
+
+                return (1 - t) * this.ax + t * this.bx;
             }
         },
         getY: {
-            value: function(t) {
+            value: function (t) {
                 if (this.route == 'spherical')
                     return this.cy + this.getR(t) * Math.sin(this.getT(t)) * Math.sin(this.getP(t));
-                
+
                 if (this.route == 'circular')
                     return this.cy + this.getR(t) * Math.sin(this.getP(t));
-                
-                return (1-t) * this.ay + t * this.by;
+
+                return (1 - t) * this.ay + t * this.by;
             }
         },
         getZ: {
-            value: function(t) {
+            value: function (t) {
                 if (this.route == 'spherical')
                     return this.cz + this.getR(t) * Math.cos(this.getT(t));
-                    
-                return (1-t) * this.az + t * this.bz;
+
+                return (1 - t) * this.az + t * this.bz;
             }
         },
         getR: {
-            value: function(t) {
-                return (1-t) * this.ar + t * this.br;
+            value: function (t) {
+                return (1 - t) * this.ar + t * this.br;
             }
         },
         getP: {
-            value: function(t) {
-                return (1-t) * this.ap + t * this.bp;
+            value: function (t) {
+                return (1 - t) * this.ap + t * this.bp;
             }
         },
         getT: {
-            value: function(t) {
-                return (1-t) * this.at + t * this.bt;
+            value: function (t) {
+                return (1 - t) * this.at + t * this.bt;
             }
         },
         drawStep: {
-            value: function(t) {
-                var esfera = new THREE.Mesh( this.geometry, this.material );
+            value: function (t) {
+                var esfera = new THREE.Mesh(this.geometry, this.material);
                 esfera.position.copy(this.getVector(t));
                 DR.escena.add(esfera);
                 return esfera;
             }
         },
         draw: {
-            value: function(t) {
+            value: function (t) {
                 var i, esfera,
                     obj = new THREE.Object3D();
-                
-                for (i=0; i<1; i+=0.02) {
-                    esfera = new THREE.Mesh( this.geometry, this.material );
+
+                for (i = 0; i < 1; i += 0.02) {
+                    esfera = new THREE.Mesh(this.geometry, this.material);
                     esfera.position.copy(this.getVector(i));
                     obj.add(esfera);
                 }
-                
+
                 DR.escena.add(obj);
                 return obj;
             }
