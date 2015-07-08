@@ -1,0 +1,10 @@
+{
+	"compilerOptions": {
+		"target": "ES5"
+	},
+	"files": [
+		"/js/dr.characters.js",
+		"/js/dr.trial.escenario.js",
+		"/js/dr.trial.animaciones.js"
+	]
+}
