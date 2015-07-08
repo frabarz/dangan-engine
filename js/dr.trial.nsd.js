@@ -1,5 +1,6 @@
 /* global THREE */
 /* global Promise */
+
 DR.NSD = (function (DR) {
 	"use strict";
 
@@ -48,20 +49,15 @@ DR.NSD = (function (DR) {
 					10 + avance * 6
 					));
 
-				if (avance < 0.3) {
-					DR.hud.clearRect(0, 0, DR.canvas.width, DR.canvas.height);
-					DR.hud.beginPath();
-					DR.hud.fillStyle = 'rgba(0, 0, 0, ' + ((0.3 - avance) / 0.3) + ')';
-					DR.hud.rect(0, 0, DR.canvas.width, DR.canvas.height);
-					DR.hud.fill();
-				}
+				if (avance < 0.3)
+					DR.hud.blackScreen((0.3 - avance) / 0.3);
 
 				DR.renderizar();
 
 				if (avance < 1) {
 					Animacion.cuadro = requestAnimationFrame(transition);
 				} else {
-					DR.hudClear();
+					DR.hud.clear();
 					resolve();
 				}
 			};
@@ -78,9 +74,9 @@ DR.NSD = (function (DR) {
 				start = 0,
 				start_angle = Math.random() * 2 * Math.PI;
 
-			var cilinder = new Cilindro(DR.hud);
+			var cilinder = new Cilindro(DR.hud.context);
 			cilinder.bullets = bullets.map(function (texto, i) {
-				return new Bala(texto, i, DR.hud);
+				return new Bala(texto, i, DR.hud.context);
 			});
 			cilinder.setScale();
 
@@ -101,7 +97,7 @@ DR.NSD = (function (DR) {
 				DR.renderizar();
 
 				if (sin) {
-					DR.hudClear();
+					DR.hud.clear();
 					resolve();
 				} else
 					Animacion.cuadro = requestAnimationFrame(transition);

@@ -1,4 +1,5 @@
 window.AudioContext = window.AudioContext || window.webkitAudioContext;
+var DR = DR || {};
 
 DR.Audio = (function () {
 	"use strict";
