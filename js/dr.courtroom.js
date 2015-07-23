@@ -1,38 +1,49 @@
 (function (DR) {
 	"use strict";
 
-	function Courtroom() {
+	function Courtroom(apothem, height) {
 		THREE.Object3D.call(this);
 
+		apothem = apothem || 120;
+		height = height || 80;
+
 		this.add(
-			//  TILED FLOOR
-			//  ancho = largo = 160, segmentos = 20
-			new Floor(200, 22),
+			// TILED FLOOR
+			// side: 240
+			// segments: 22
+			new Floor(2 * apothem, 22),
 
-			//  WALLS
-			//  total = 8, alto = 80, ancho = 70, apotema = 60
-			new Walls(16, 80, 105),
+			// WALLS
+			// amount: 8
+			// height: 80
+			// apothem: 120
+			new Walls(8, height, apothem),
 
-			//  CURTAINS x8
-			//  total, ancho = alto, apotema
-			new Curtains(8, 36, 102),
+			// EXITS
+			// amount: 8
+			// apothem: 119
+			new Exits(8, apothem - 1)
+				// CARPETS
+				// width: 8
+				// longitude: 100
+				.setCarpets(10, 100)
+				// CURTAINS
+				// width: 36
+				.setCurtains(48)
+				// PILLARS
+				// radius: 5
+				// height: 80
+				.setPillars(3, height),
 
-			//  PILLARS x8
-			//  total, ancho, alto, distancia al centro, desviacion lateral
-			new Pillars(8, 5, 80, 101, 18),
-
-			//  LONG CARPETS x8
-			//  total, ancho, largo, apotema
-			new LongCarpets(8, 8, 90, 20),
 			new Platform(),
 			new TrialStands()
-		);
+			);
 	}
 
 	Courtroom.TEXTURES = {
 		WALLPAPER: '/textures/chapter1-wallpaper.png',
 		BASEBOARD: '/textures/chapter1-guardapolvo.png',
-		REDRUG: "/textures/alfombraR.png",
+		REDCARPET: "/textures/alfombraR.png",
 		CURTAIN: "/textures/chapter1-salida.png",
 		COLUMN: "/textures/chapter1-marcos.png",
 		WOOD: "/textures/wood.jpg",
@@ -181,6 +192,82 @@
 		this.computeVertexNormals();
 	}
 
+	function CylinderBufferGeometry(sides, height, apothem) {
+		THREE.BufferGeometry.call(this);
+
+		this.type = 'CylinderBufferGeometry';
+
+		var radius = apothem / Math.cos(Math.PI / sides);
+
+		var s,
+			this_x, this_y, next_x, next_y,
+			angle = (2 * Math.PI) / sides,
+
+			vertices = new Float32Array(sides * 6 * 3),
+			uvs = new Float32Array(sides * 6 * 2);
+
+		// UV mapping
+		// ┌───┬───┐
+		// │0,1│1,1│
+		// ├───┼───┤
+		// │0,0│1,0│
+		// └───┴───┘
+
+		for (s = 0; s <= sides; s++) {
+			this_x = radius * Math.cos(angle * (s - 0.5));
+			this_y = radius * Math.sin(angle * (s - 0.5));
+			next_x = radius * Math.cos(angle * (s + 0.5));
+			next_y = radius * Math.sin(angle * (s + 0.5));
+
+			// (x,y) = 1,1 : Top right vertex
+			uvs[s * 12 + 0] = 1;
+			uvs[s * 12 + 1] = 1;
+			vertices[s * 18 + 0] = next_x;
+			vertices[s * 18 + 1] = next_y;
+			vertices[s * 18 + 2] = height;
+			// (x,y) = 0,1 : Top left vertex
+			uvs[s * 12 + 2] = 0;
+			uvs[s * 12 + 3] = 1;
+			vertices[s * 18 + 3] = this_x;
+			vertices[s * 18 + 4] = this_y;
+			vertices[s * 18 + 5] = height;
+			// (x,y) = 0,0 : Bottom left vertex
+			uvs[s * 12 + 4] = 0;
+			uvs[s * 12 + 5] = 0;
+			vertices[s * 18 + 6] = this_x;
+			vertices[s * 18 + 7] = this_y;
+			vertices[s * 18 + 8] = 0;
+
+			// (x,y) = 0,0 : Bottom left vertex
+			uvs[s * 12 + 6] = 0;
+			uvs[s * 12 + 7] = 0;
+			vertices[s * 18 + 9] = this_x;
+			vertices[s * 18 + 10] = this_y;
+			vertices[s * 18 + 11] = 0;
+			// (x,y) = 1,0 : Bottom right vertex
+			uvs[s * 12 + 8] = 1;
+			uvs[s * 12 + 9] = 0;
+			vertices[s * 18 + 12] = next_x;
+			vertices[s * 18 + 13] = next_y;
+			vertices[s * 18 + 14] = 0;
+			// (x,y) = 1,1 : Top right vertex
+			uvs[s * 12 + 10] = 1;
+			uvs[s * 12 + 11] = 1;
+			vertices[s * 18 + 15] = next_x;
+			vertices[s * 18 + 16] = next_y;
+			vertices[s * 18 + 17] = height;
+		}
+
+		this.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
+		this.addAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+
+		this_x = this_y = null;
+		next_x = next_y = null;
+		uvs = null;
+		vertices = null;
+	}
+
+
 	function Floor(ancho, segm) {
 		var material, geometry,
 			i, j, total;
@@ -219,194 +306,197 @@
 		material = geometry = null;
 	}
 
-
-	function WallsBufferGeometry(total, height, apothem) {
-		THREE.BufferGeometry.call(this);
-
-		this.type = 'WallsBufferGeometry';
-
-		var width = apothem * 2 * Math.tan(Math.PI / total);
-
-		var width_half = width / 2;
-		var height_half = height / 2;
-
-		var gridX = 1;
-		var gridY = 1;
-
-		var gridX1 = gridX + 1;
-		var gridY1 = gridY + 1;
-
-		var segment_width = width / gridX;
-		var segment_height = height / gridY;
-
-		var vertices = new Float32Array(gridX1 * gridY1 * 3);
-		var normals = new Float32Array(gridX1 * gridY1 * 3);
-		var uvs = new Float32Array(gridX1 * gridY1 * 2);
-
-		var offset = 0;
-		var offset2 = 0;
-	}
-
-	function Walls(total, height, apothem) {
+	function Walls(amount, height, apothem) {
 		THREE.Object3D.call(this);
 
-		var width,
-			textura, material, geometry, malla,
-			i, angulo;
+		var texture, material, geometry;
 
-		width = apothem * 2 * Math.tan(Math.PI / total);
-
-		textura = THREE.ImageUtils.loadTexture(Courtroom.TEXTURES.WALLPAPER);
-		textura.wrapT = THREE.RepeatWrapping;
-		textura.wrapS = THREE.RepeatWrapping;
-		textura.repeat.set(1, 1);
-
+		texture = THREE.ImageUtils.loadTexture(Courtroom.TEXTURES.WALLPAPER);
 		material = new THREE.MeshBasicMaterial({
 			color: 0x2D2867,
-			side: THREE.FrontSide,
-			map: textura
+			side: THREE.BackSide,
+			map: texture
 		});
+		geometry = new CylinderBufferGeometry(amount, height, apothem);
+		this.add(new THREE.Mesh(geometry, material));
 
-		geometry = new THREE.PlaneBufferGeometry(width, height, 1, 1);
-
-		for (i = 0; i < total; i++) {
-			angulo = i / total * 2 * Math.PI;
-			malla = new THREE.Mesh(geometry, material);
-			malla.rotation.x = Math.PI / 2;
-			malla.rotation.y = -angulo;
-			malla.position.x = apothem * Math.sin(angulo);
-			malla.position.y = apothem * Math.cos(angulo);
-			malla.position.z = height / 2;
-			this.add(malla);
-		}
-
-		textura = THREE.ImageUtils.loadTexture(Courtroom.TEXTURES.BASEBOARD);
-
+		texture = THREE.ImageUtils.loadTexture(Courtroom.TEXTURES.BASEBOARD);
+		texture.wrapT = THREE.RepeatWrapping;
+		texture.repeat.set(2, 1);
 		material = new THREE.MeshBasicMaterial({
 			color: 0xAAAAAA,
-			side: THREE.FrontSide,
-			map: textura
+			side: THREE.BackSide,
+			map: texture
 		});
+		geometry = new CylinderBufferGeometry(amount, height * 0.04, apothem - 0.05);
+		this.add(new THREE.Mesh(geometry, material));
 
-		geometry = new THREE.PlaneBufferGeometry(width, 3, 1, 1);
-
-		for (i = 0; i < total; i++) {
-			angulo = i / total * 2 * Math.PI;
-			malla = new THREE.Mesh(geometry, material);
-			malla.rotation.x = Math.PI / 2;
-			malla.rotation.y = -angulo;
-			malla.position.x = (apothem - 0.05) * Math.sin(angulo);
-			malla.position.y = (apothem - 0.05) * Math.cos(angulo);
-			malla.position.z = 1.5;
-			this.add(malla);
-		}
-
-		textura = material = geometry = malla = null;
+		texture = null;
+		material = null;
+		geometry = null;
 	}
 
-	function LongCarpets(total, width, longitude, apothem) {
+	function Exits(amount, apothem) {
 		THREE.Object3D.call(this);
 
-		var textura, material, geometry, malla,
-			i, angulo;
-
-		textura = THREE.ImageUtils.loadTexture(Courtroom.TEXTURES.REDRUG);
-		textura.wrapT = THREE.RepeatWrapping;
-		textura.repeat.set(1, 3);
-
-		material = new THREE.MeshLambertMaterial({
-			color: 0xFFFFFF,
-			side: THREE.FrontSide,
-			map: textura
-		});
-
-		geometry = new THREE.PlaneBufferGeometry(width, longitude, 1, 1);
-
-		for (i = 0.5; i < 8; i++) {
-			angulo = i / total * 2 * Math.PI;
-			malla = new THREE.Mesh(geometry, material);
-			malla.rotation.z = angulo;
-			malla.position.x = (apothem + longitude / 2) * Math.sin(-angulo);
-			malla.position.y = (apothem + longitude / 2) * Math.cos(angulo);
-			malla.position.z = 0.05;
-			this.add(malla);
-		}
-
-		textura = material = geometry = malla = null;
+		this.amount = amount;
+		this.apothem = apothem;
 	}
 
-	function Curtains(total, alto, distancia) {
-		THREE.Object3D.call(this);
+	Exits.prototype = Object.create(THREE.Mesh.prototype);
 
-		var textura, material, geometry, malla,
-			i, angulo;
+	Exits.prototype.setCurtains = function(width) {
+		var i, angle,
+			geometry, material, mesh;
 
-		textura = THREE.ImageUtils.loadTexture(Courtroom.TEXTURES.CURTAIN);
+		geometry = new THREE.PlaneBufferGeometry(width, width, 1, 1);
 
 		material = new THREE.MeshBasicMaterial({
 			color: 0xEEEEEE,
 			side: THREE.FrontSide,
-			map: textura,
+			map: THREE.ImageUtils.loadTexture(Courtroom.TEXTURES.CURTAIN),
 			transparent: true
 		});
 
-		geometry = new THREE.PlaneBufferGeometry(alto, alto, 1, 1);
+		for (i = 0.5; i < this.amount; i++) {
+			angle = (2 * Math.PI) * i / this.amount;
 
-		for (i = 0.5; i < total; i++) {
-			angulo = i / total * 2 * Math.PI;
-			malla = new THREE.Mesh(geometry, material);
-			malla.rotation.x = Math.PI / 2;
-			malla.rotation.y = -angulo;
-			malla.position.x = distancia * Math.sin(angulo);
-			malla.position.y = distancia * Math.cos(angulo);
-			malla.position.z = alto / 2 - 1;
-			this.add(malla);
+			mesh = new THREE.Mesh(geometry, material);
+
+			mesh.rotation.x = Math.PI / 2;
+			mesh.rotation.y = -angle;
+
+			mesh.position.x = this.apothem * Math.sin(angle);
+			mesh.position.y = this.apothem * Math.cos(angle);
+			mesh.position.z = width / 2 - 1;
+
+			this.add(mesh);
 		}
 
-		textura = material = geometry = malla = null;
-	}
+		material = null;
+		geometry = null;
+		mesh = null;
 
-	function Pillars(total, ancho, alto, distancia, desviacion) {
-		THREE.Object3D.call(this);
+		return this;
+	};
 
-		var textura, material, geometry, malla,
-			i, angulo,
-			adicional = Math.atan(desviacion / distancia);
+	Exits.prototype.setCarpets = function (width, longitude) {
+		var i, angle,
+			texture, geometry, material, mesh;
 
-		textura = THREE.ImageUtils.loadTexture(Courtroom.TEXTURES.COLUMN);
-		textura.wrapT = THREE.RepeatWrapping;
-		textura.repeat.set(1, 10);
+		texture = THREE.ImageUtils.loadTexture(Courtroom.TEXTURES.REDCARPET);
+		texture.wrapT = THREE.RepeatWrapping;
+		texture.repeat.set(1, 3);
+
+		material = new THREE.MeshLambertMaterial({
+			color: 0xFFFFFF,
+			side: THREE.FrontSide,
+			map: texture
+		});
+
+		geometry = new THREE.PlaneBufferGeometry(width, longitude, 1, 1);
+
+		for (i = 0.5; i < this.amount; i++) {
+			angle = i / this.amount * 2 * Math.PI;
+
+			mesh = new THREE.Mesh(geometry, material);
+
+			mesh.rotation.z = angle;
+
+			mesh.position.x = (this.apothem - longitude / 2) * Math.sin(-angle);
+			mesh.position.y = (this.apothem - longitude / 2) * Math.cos(angle);
+			mesh.position.z = 0.05;
+
+			this.add(mesh);
+		}
+
+		texture = null;
+		material = null;
+		geometry = null;
+		mesh = null;
+
+		return this;
+	};
+
+	Exits.prototype.setPillars = function (radius, height) {
+		var texture, material, geometry, mesh,
+			i, angle, deviation;
+
+		texture = THREE.ImageUtils.loadTexture(Courtroom.TEXTURES.COLUMN);
+		texture.wrapT = THREE.RepeatWrapping;
+		texture.repeat.set(1, 2);
 
 		material = new THREE.MeshBasicMaterial({
 			color: 0xFFFFFF,
 			side: THREE.FrontSide,
-			map: textura
+			map: texture
 		});
 
-		geometry = new THREE.PlaneBufferGeometry(ancho, alto, 1, 1);
+		geometry = new CylinderBufferGeometry(4, height, radius);
 
-		for (i = 0.5; i < total; i++) {
-			angulo = i / total * 2 * Math.PI;
+		// Custom UV mapping for the game extracted texture
+		angle = [0, 0.17578125, 0.4453125, 0.73046875, 1];
+		for (i = 0; i < 4; i++) {
+			geometry.attributes.uv.array[i * 12 +  0] = angle[i+1];
+			geometry.attributes.uv.array[i * 12 +  1] = 1;
 
-			malla = new THREE.Mesh(geometry, material);
-			malla.rotation.x = Math.PI / 2;
-			malla.rotation.y = -angulo;
-			malla.position.x = distancia * Math.sin(angulo + adicional);
-			malla.position.y = distancia * Math.cos(angulo + adicional);
-			malla.position.z = alto / 2;
-			this.add(malla);
+			geometry.attributes.uv.array[i * 12 +  2] = angle[i];
+			geometry.attributes.uv.array[i * 12 +  3] = 1;
 
-			malla = new THREE.Mesh(geometry, material);
-			malla.rotation.x = Math.PI / 2;
-			malla.rotation.y = -angulo;
-			malla.position.x = distancia * Math.sin(angulo - adicional);
-			malla.position.y = distancia * Math.cos(angulo - adicional);
-			malla.position.z = alto / 2;
-			this.add(malla);
+			geometry.attributes.uv.array[i * 12 +  4] = angle[i];
+			geometry.attributes.uv.array[i * 12 +  5] = 0;
+
+
+			geometry.attributes.uv.array[i * 12 +  6] = angle[i];
+			geometry.attributes.uv.array[i * 12 +  7] = 0;
+
+			geometry.attributes.uv.array[i * 12 +  8] = angle[i+1];
+			geometry.attributes.uv.array[i * 12 +  9] = 0;
+
+			geometry.attributes.uv.array[i * 12 + 10] = angle[i+1];
+			geometry.attributes.uv.array[i * 12 + 11] = 1;
 		}
 
-		textura = material = geometry = malla = null;
-	}
+		function Pillar(g, m) {
+			THREE.Mesh.call(this, g, m);
+		}
+		Pillar.prototype = Object.create(THREE.Mesh.prototype);
+
+		deviation = Math.atan(0.46 * Math.tan(Math.PI / this.amount));
+		console.log(deviation * 180 / Math.PI);
+
+		angle = (2 * Math.PI) / this.amount;
+
+		for (i = 0; i < this.amount; i++) {
+			mesh = new Pillar(geometry, material);
+
+			mesh.rotation.z = Math.PI / 2 - angle * i;
+
+			mesh.position.x = (this.apothem) * Math.sin(angle * i + deviation);
+			mesh.position.y = (this.apothem) * Math.cos(angle * i + deviation);
+
+			this.add(mesh);
+
+
+			mesh = new Pillar(geometry, material);
+
+			mesh.rotation.z = Math.PI / 2 - angle * i;
+
+			mesh.position.x = (this.apothem) * Math.sin(angle * i - deviation);
+			mesh.position.y = (this.apothem) * Math.cos(angle * i - deviation);
+
+			this.add(mesh);
+		}
+
+		texture = null;
+		material = null;
+		geometry = null;
+		mesh = null;
+
+		return this;
+	};
+
+
 
 	function Platform() {
 		THREE.Object3D.call(this);
@@ -415,7 +505,7 @@
 
 		//  ALFOMBRA RADIAL
 		//  radioInt = 17.5, radioExt = 26.5, segmentos = 32
-		textura = THREE.ImageUtils.loadTexture(Courtroom.TEXTURES.REDRUG);
+		textura = THREE.ImageUtils.loadTexture(Courtroom.TEXTURES.REDCARPET);
 		textura.wrapS = textura.wrapT = THREE.RepeatWrapping;
 		textura.repeat.set(1, 1);
 
@@ -548,24 +638,20 @@
 
 	StandGeometry.prototype = Object.create(THREE.Geometry.prototype);
 	PlatformGeometry.prototype = Object.create(THREE.Geometry.prototype);
+	CylinderBufferGeometry.prototype = Object.create(THREE.BufferGeometry.prototype);
 
 	Floor.prototype = Object.create(THREE.Mesh.prototype);
 	Walls.prototype = Object.create(THREE.Mesh.prototype);
-	LongCarpets.prototype = Object.create(THREE.Mesh.prototype);
-	Curtains.prototype = Object.create(THREE.Mesh.prototype);
-	Pillars.prototype = Object.create(THREE.Mesh.prototype);
 	Platform.prototype = Object.create(THREE.Mesh.prototype);
 	TrialStands.prototype = Object.create(THREE.Mesh.prototype);
 
 	Object.defineProperties(Courtroom, {
 		PlatformGeometry: { value: PlatformGeometry },
 		StandGeometry: { value: StandGeometry },
-		WallsBufferGeometry: { value: WallsBufferGeometry },
+		CylinderBufferGeometry: { value: CylinderBufferGeometry },
 		Floor: { value: Floor },
 		Walls: { value: Walls },
-		LongCarpets: { value: LongCarpets },
-		Curtains: { value: Curtains },
-		Pillars: { value: Pillars },
+		Exits: { value: Exits },
 		Platform: { value: Platform },
 		TrialStands: { value: TrialStands }
 	});
