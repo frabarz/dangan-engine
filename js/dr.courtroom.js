@@ -51,37 +51,74 @@
 	};
 
 
-	function PlatformGeometry(radiusInternal, radiusExternal, segments) {
-		THREE.Geometry.call(this);
+	function PlatformBufferGeometry(radiusInternal, radiusExternal, segments) {
+		THREE.BufferGeometry.call(this);
+
+		this.type = 'PlatformBufferGeometry';
 
 		radiusInternal = radiusInternal || 20;
 		radiusExternal = radiusExternal || 31;
 		segments = segments || 32;
 
-		var i,
-			twopi = 2 * Math.PI,
-			uv = [new THREE.Vector2(0, 0), new THREE.Vector2(0, 1), new THREE.Vector2(1, 1), new THREE.Vector2(1, 0)];
+		var s,
+			this_x, this_y, next_x, next_y,
+			angle = (2 * Math.PI) / segments,
 
-		for (i = 0; i < segments; i++) {
-			this.vertices.push(
-				new THREE.Vector3(radiusInternal * Math.cos(i / segments * twopi), radiusInternal * Math.sin(i / segments * twopi), 1),
-				new THREE.Vector3(radiusExternal * Math.cos(i / segments * twopi), radiusExternal * Math.sin(i / segments * twopi), 1)
-				);
+			vertices = new Float32Array(segments * 6 * 3),
+			uvs = new Float32Array(segments * 6 * 2);
 
-			this.faces.push(
-				new THREE.Face3(2 * i + 2, 2 * i, 2 * i + 1),
-				new THREE.Face3(2 * i + 1, 2 * i + 3, 2 * i + 2)
-				);
+		for (s = 0; s < segments; s++) {
+			this_x = Math.cos(angle * s);
+			this_y = Math.sin(angle * s);
+			next_x = Math.cos(angle * (s+1));
+			next_y = Math.sin(angle * (s+1));
 
-			this.faceVertexUvs[0].push(uv, uv);
+			uvs[12 * s +  0] = 0;
+			uvs[12 * s +  1] = 0;
+			vertices[18 * s +  0] = radiusInternal * this_x;
+			vertices[18 * s +  1] = radiusInternal * this_y;
+			vertices[18 * s +  2] = 0;
+
+			uvs[12 * s +  2] = 1;
+			uvs[12 * s +  3] = 0;
+			vertices[18 * s +  3] = radiusExternal * this_x;
+			vertices[18 * s +  4] = radiusExternal * this_y;
+			vertices[18 * s +  5] = 0;
+
+			uvs[12 * s +  4] = 1;
+			uvs[12 * s +  5] = 1;
+			vertices[18 * s +  6] = radiusExternal * next_x;
+			vertices[18 * s +  7] = radiusExternal * next_y;
+			vertices[18 * s +  8] = 0;
+
+
+			uvs[12 * s +  6] = 1;
+			uvs[12 * s +  7] = 1;
+			vertices[18 * s +  9] = radiusExternal * next_x;
+			vertices[18 * s + 10] = radiusExternal * next_y;
+			vertices[18 * s + 11] = 0;
+
+			uvs[12 * s +  8] = 0;
+			uvs[12 * s +  9] = 1;
+			vertices[18 * s + 12] = radiusInternal * next_x;
+			vertices[18 * s + 13] = radiusInternal * next_y;
+			vertices[18 * s + 14] = 0;
+
+			uvs[12 * s + 10] = 0;
+			uvs[12 * s + 11] = 0;
+			vertices[18 * s + 15] = radiusInternal * this_x;
+			vertices[18 * s + 16] = radiusInternal * this_y;
+			vertices[18 * s + 17] = 0;
 		}
 
-		i--;
-		this.faces[2 * i] = new THREE.Face3(0, 2 * i, 2 * i + 1);
-		this.faces[2 * i + 1] = new THREE.Face3(2 * i + 1, 1, 0);
+		this.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
+		this.addAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+		//this.computeVertexNormals();
 
-		this.computeFaceNormals();
-		this.computeVertexNormals();
+		this_x = this_y = null;
+		next_x = next_y = null;
+		uvs = null;
+		vertices = null;
 	}
 
 	function StandGeometry(dist, altu) {
@@ -205,13 +242,6 @@
 
 			vertices = new Float32Array(sides * 6 * 3),
 			uvs = new Float32Array(sides * 6 * 2);
-
-		// UV mapping
-		// ┌───┬───┐
-		// │0,1│1,1│
-		// ├───┼───┤
-		// │0,0│1,0│
-		// └───┴───┘
 
 		for (s = 0; s <= sides; s++) {
 			this_x = radius * Math.cos(angle * (s - 0.5));
@@ -457,33 +487,28 @@
 			geometry.attributes.uv.array[i * 12 + 11] = 1;
 		}
 
-		function Pillar(g, m) {
-			THREE.Mesh.call(this, g, m);
-		}
-		Pillar.prototype = Object.create(THREE.Mesh.prototype);
-
 		deviation = Math.atan(0.46 * Math.tan(Math.PI / this.amount));
-		console.log(deviation * 180 / Math.PI);
-
-		angle = (2 * Math.PI) / this.amount;
 
 		for (i = 0; i < this.amount; i++) {
-			mesh = new Pillar(geometry, material);
+			angle = (2 * Math.PI) * i / this.amount;
 
-			mesh.rotation.z = Math.PI / 2 - angle * i;
 
-			mesh.position.x = (this.apothem) * Math.sin(angle * i + deviation);
-			mesh.position.y = (this.apothem) * Math.cos(angle * i + deviation);
+			mesh = new THREE.Mesh(geometry, material);
+
+			mesh.rotation.z = Math.PI / 2 - angle;
+
+			mesh.position.x = this.apothem * Math.sin(angle + deviation);
+			mesh.position.y = this.apothem * Math.cos(angle + deviation);
 
 			this.add(mesh);
 
 
-			mesh = new Pillar(geometry, material);
+			mesh = new THREE.Mesh(geometry, material);
 
-			mesh.rotation.z = Math.PI / 2 - angle * i;
+			mesh.rotation.z = Math.PI / 2 - angle;
 
-			mesh.position.x = (this.apothem) * Math.sin(angle * i - deviation);
-			mesh.position.y = (this.apothem) * Math.cos(angle * i - deviation);
+			mesh.position.x = this.apothem * Math.sin(angle - deviation);
+			mesh.position.y = this.apothem * Math.cos(angle - deviation);
 
 			this.add(mesh);
 		}
@@ -501,26 +526,22 @@
 	function Platform() {
 		THREE.Object3D.call(this);
 
-		var textura, material, geometry, malla;
+		var material, geometry, malla;
 
 		//  ALFOMBRA RADIAL
 		//  radioInt = 17.5, radioExt = 26.5, segmentos = 32
-		textura = THREE.ImageUtils.loadTexture(Courtroom.TEXTURES.REDCARPET);
-		textura.wrapS = textura.wrapT = THREE.RepeatWrapping;
-		textura.repeat.set(1, 1);
-
-		material = new THREE.MeshLambertMaterial({
+		material = new THREE.MeshBasicMaterial({
 			color: 0xFFFFFF,
 			side: THREE.FrontSide,
-			map: textura
+			map: THREE.ImageUtils.loadTexture(Courtroom.TEXTURES.REDCARPET)
 		});
 
-		geometry = new PlatformGeometry(17.5, 27.5, 32);
+		geometry = new PlatformBufferGeometry(17.5, 27.5, 32);
 
 		malla = new THREE.Mesh(geometry, material);
-		malla.name = 'alfombra_radial';
-		malla.rotation.z = 11.25 * Math.PI / 180;
+		malla.position.z = 1;
 		this.add(malla);
+
 
 		//  PLATAFORMA: CILINDRO EXTERIOR
 		//  radioSup = 28.5, radioInf = 28.5, altura = 1, segmRadiales = 32, segmVerticales = 1, abierto = true
@@ -537,7 +558,9 @@
 		malla.position.z = 0.5;
 		this.add(malla);
 
-		textura = material = geometry = malla = null;
+		material = null;
+		geometry = null;
+		malla = null;
 	}
 
 	function TrialStands() {
@@ -636,9 +659,9 @@
 		textura = material = geometry = malla = null;
 	}
 
-	StandGeometry.prototype = Object.create(THREE.Geometry.prototype);
-	PlatformGeometry.prototype = Object.create(THREE.Geometry.prototype);
 	CylinderBufferGeometry.prototype = Object.create(THREE.BufferGeometry.prototype);
+	PlatformBufferGeometry.prototype = Object.create(THREE.BufferGeometry.prototype);
+	StandGeometry.prototype = Object.create(THREE.Geometry.prototype);
 
 	Floor.prototype = Object.create(THREE.Mesh.prototype);
 	Walls.prototype = Object.create(THREE.Mesh.prototype);
@@ -646,9 +669,9 @@
 	TrialStands.prototype = Object.create(THREE.Mesh.prototype);
 
 	Object.defineProperties(Courtroom, {
-		PlatformGeometry: { value: PlatformGeometry },
-		StandGeometry: { value: StandGeometry },
 		CylinderBufferGeometry: { value: CylinderBufferGeometry },
+		PlatformBufferGeometry: { value: PlatformBufferGeometry },
+		StandGeometry: { value: StandGeometry },
 		Floor: { value: Floor },
 		Walls: { value: Walls },
 		Exits: { value: Exits },
