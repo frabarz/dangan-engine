@@ -1,5 +1,6 @@
 // https://www.youtube.com/watch?v=79ZEu8vf5OM
-var discusion = [{
+
+export default [{
 	character: 'ishimaru',
 	sprite: 12,
 	duration: 500,
@@ -91,4 +92,4 @@ var discusion = [{
 	fov: 12,
 	position: [16.04, 45.24, 21],
 	lookat: [-13.55, -11.37, 13]
-}];
+}]

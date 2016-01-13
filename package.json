@@ -1,0 +1,36 @@
+{
+  "name": "dangan-engine",
+  "version": "1.0.0",
+  "description": "Danganronpa Class Trial Engine based on Three.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "three": "^0.73.0",
+    "promise-polyfill": "^2.1.4"
+  },
+  "devDependencies": {
+    "babelify": "^6.4.0",
+    "browserify": "^11.2.0",
+    "gulp": "^3.9.0",
+    "gulp-concat": "^2.6.0",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-typescript": "^2.9.2",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/frabarz/dangan-engine.git"
+  },
+  "keywords": [
+    "danganronpa",
+    "three.js"
+  ],
+  "author": "frabarz",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/frabarz/dangan-engine/issues"
+  },
+  "homepage": "https://github.com/frabarz/dangan-engine#readme"
+}
