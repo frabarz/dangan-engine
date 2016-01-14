@@ -1,4 +1,4 @@
-import HUDElement from './HUDElement.js';
+import BaseElement from './Element.js';
 
 var TEXTURES = (function () {
     function preloadImg(url) {
@@ -8,13 +8,13 @@ var TEXTURES = (function () {
     }
 
     return {
-        BOTTOM: preloadImg('/textures/bullet_1.svg'),
-        BODY: preloadImg('/textures/bullet_2.svg'),
-        CAP: preloadImg('/textures/bullet_3.svg')
+        BOTTOM: preloadImg('/resources/textures/bullet_1.svg'),
+        BODY: preloadImg('/resources/textures/bullet_2.svg'),
+        CAP: preloadImg('/resources/textures/bullet_3.svg')
     };
 })();
 
-class HUDNSDBullet extends HUDElement
+class HUDNSDBullet extends BaseElement
 {
     constructor(ctx, text, i)
     {

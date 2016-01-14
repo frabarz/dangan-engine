@@ -1,6 +1,6 @@
-import HUDElement from './HUDElement.js';
+import BaseElement from './Element.js';
 
-export default class HUDNSDCylinder extends HUDElement
+export default class NSDCylinder extends BaseElement
 {
     constructor(ctx)
     {
@@ -61,70 +61,7 @@ export default class HUDNSDCylinder extends HUDElement
         this.context.restore();
     }
     
-    dibujarArcoExteriorDR2(giro)
-    {
-        this.context.lineCap = 'square';
-
-        this.context.globalCompositeOperation = 'source-over';
-        this.context.strokeStyle = 'white';
-        this.context.lineWidth = this.r * 0.1;
-        for (var i = 0; i < 4; i++) {
-            this.context.beginPath();
-            this.context.arc(0, 0, this.r * 1.17, giro + (Math.PI * i / 2), giro + (Math.PI * i / 2) + 1.4);
-            this.context.stroke();
-        }
-
-        this.context.globalCompositeOperation = 'destination-out';
-        this.context.lineWidth = this.r * 0.08;
-        for (var i = 0; i < 4; i++) {
-            this.context.beginPath();
-            this.context.arc(0, 0, this.r * 1.17, giro + (Math.PI * i / 2), giro + (Math.PI * i / 2) + 1.4);
-            this.context.stroke();
-        }
-
-        this.context.globalCompositeOperation = 'source-over';
-        this.context.strokeStyle = 'rgba(255,255,255,0.3)';
-        this.context.lineWidth = this.r * 0.09;
-        for (var i = 0; i < 4; i++) {
-            this.context.beginPath();
-            this.context.arc(0, 0, this.r * 1.17, giro + (Math.PI * i / 2), giro + (Math.PI * i / 2) + 1.4);
-            this.context.stroke();
-        }
-    }
-        
-	dibujarArcoInteriorDR2(giro)
-    {
-        this.context.globalCompositeOperation = 'source-over';
-
-        this.context.strokeStyle = 'white';
-        this.context.lineCap = 'square';
-        this.context.lineWidth = this.r * 0.05;
-
-        for (var i = 0; i < 2; i++) {
-            this.context.beginPath();
-            this.context.arc(0, 0, this.r * 1.0625, (Math.PI * i) - giro, (Math.PI * i) + 3 - giro);
-            this.context.stroke();
-        }
-
-        this.context.globalCompositeOperation = 'destination-out';
-        this.context.lineWidth = this.r * 0.036;
-        for (var i = 0; i < 2; i++) {
-            this.context.beginPath();
-            this.context.arc(0, 0, this.r * 1.0625, (Math.PI * i) - giro, (Math.PI * i) + 3 - giro);
-            this.context.stroke();
-        }
-
-        this.context.globalCompositeOperation = 'source-over';
-        this.context.strokeStyle = 'rgba(255,255,255,0.3)';
-        this.context.lineWidth = this.r * 0.04;
-        for (var i = 0; i < 2; i++) {
-            this.context.beginPath();
-            this.context.arc(0, 0, this.r * 1.0625, (Math.PI * i) - giro, (Math.PI * i) + 3 - giro);
-            this.context.stroke();
-        }
-    }
-    
-    dibujarArcoInteriorDR1(giro)
+    dibujarArcoInterior(giro)
     {
         this.context.globalCompositeOperation = 'source-over';
 
@@ -139,7 +76,7 @@ export default class HUDNSDCylinder extends HUDElement
         }
     }
     
-	dibujarArcoExteriorDR1(giro)
+	dibujarArcoExterior(giro)
     {
         this.context.globalCompositeOperation = 'source-over';
 
@@ -152,7 +89,7 @@ export default class HUDNSDCylinder extends HUDElement
         }
     }
     
-    renderBulletPresentation(time)
+    draw(time)
     {
         var i,
             bullets_total,
