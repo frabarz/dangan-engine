@@ -93,8 +93,6 @@ class Animacion
                 var inicio;
 
                 function transicion(now) {
-                    now = now || ('performance' in window ? performance.now() : Date.now());
-
                     var avance = Math.min(1, (now - inicio) / duration),
                         recorrido = easing(avance);
 
@@ -123,7 +121,7 @@ class Animacion
                 }
 
                 cancelAnimationFrame(Animacion.cuadro);
-                inicio = 'performance' in window ? performance.now() : Date.now();
+				inicio = window.performance.now();
                 transicion(inicio);
             });
         });
@@ -141,23 +139,28 @@ class Animacion
         trial.mainCamera.updateProjectionMatrix();
 
         transition = function (now) {
-            var delta = (now - inicio) / 1000,
-                angle = delta * 0.04 * Math.PI,
+			Animacion.cuadro = requestAnimationFrame(transition);
+			
+			var angle = (now - inicio) / 1000 * 0.04 * Math.PI,
                 sin = Math.sin(angle),
                 cos = Math.cos(angle);
+
+			angle = null;
 
             trial.mainCamera.position.set(-28 * cos, -28 * sin, 33);
             trial.mainCamera.lookAt(new THREE.Vector3(19 * cos, 19 * sin, 9));
             // look: -19, 0, 9
             // pos: 28, 0, 33
 
-            trial.render();
-            Animacion.cuadro = requestAnimationFrame(transition);
+			sin = null;
+			cos = null;
+
+			trial.render(now);
         };
 
         this.promise = this.promise.then(function (resolve, reject) {
             cancelAnimationFrame(Animacion.cuadro);
-            inicio = ('performance' in window ? performance.now() : Date.now());
+			inicio = window.performance.now();
             transition(inicio);
         });
 
