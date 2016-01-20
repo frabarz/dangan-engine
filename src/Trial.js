@@ -1,10 +1,9 @@
-import Animacion from './Animacion.js';
+import DiscussionAnimation from './animation/DiscussionAnimation.js';
+import NSDAnimation from './animation/NSDAnimation.js';
 
 import Character from './Character.js';
 
 import HUD from './HUD.js';
-import HUDDiscussionInterface from './HUDDiscussionInterface.js';
-import HUDNSDInterface from './HUDNSDInterface.js';
 
 export default class Trial
 {
@@ -30,11 +29,8 @@ export default class Trial
         this.scene.add(light);
 
         this.createCamera();
-    }
     
-    set courtroom(obj)
-    {
-        this.scene.add(obj);
+		this.animation = new DiscussionAnimation(this);
     }
 
     createCamera(params)
@@ -53,32 +49,27 @@ export default class Trial
         if (!character)
             return;
 
-        character = new Character(character, position);
-        this.scene.add(character.card);
+		character = new Character(character);
+		this.characters[character.id] = character;
 
-        return;
+		this.scene.add(character.card);
+		character.card.locateInStands(position);
     }
     
     changeStage(mode)
+	{
+		switch (mode)
     {
-        var screen;
+			case 'discussion':
+				this.animation = new DiscussionAnimation(this);
+				break;
         
-        this.hud.getChildrenByType('interface').forEach(this.hud.remove, this.hud);
-        
-        switch(mode) {
             case 'nsd':
-                screen = new HUDNSDInterface(this.hud.ctx);
-                break;
-                
-            case 'discussion':
-            default:
-                screen = new HUDDiscussionInterface(this.hud.ctx);
+				this.animation = new NSDAnimation(this);
                 break;
         }
         
-        this.hud.add(screen);
-        
-        return screen;
+		return this.hud.setScreen(mode);
     }
 
     appendCanvasTo(holder)
@@ -95,9 +86,10 @@ export default class Trial
         return this;
     }
 
-    render()
+	render(time)
     {
         this.renderer.render(this.scene, this.mainCamera);
+		this.hud.draw(time);
     }
 
     // I still don't know how, but this will be useful for the Cross Sword Showdown

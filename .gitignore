@@ -3,4 +3,6 @@
 /resources
 /lib
 /editor
+/.vscode
 *.map
+.htaccess

@@ -1,9 +1,12 @@
-import HUDElement from './HUDElement.js';
+import BaseElement from './hud/Element.js';
+
+import DiscussionScreen from './hud/DiscussionScreen.js';
+import NSDScreen from './hud/NSDScreen.js';
 
 export default class HUD
 {
-    constructor(width, height)
-    {
+	constructor(width, height)
+	{
 		var canvas = document.createElement('canvas'),
 			ctx = canvas.getContext('2d');
 
@@ -16,14 +19,16 @@ export default class HUD
 		this.ctx = ctx;
 		this.canvas = canvas;
 
+		this.blackScreen = 0;
+
 		this.children = [];
 
 		ctx = canvas = null;
 	}
-    
-    // Shamelessly stolen from THREE.js
+
+	// Shamelessly stolen from THREE.js
 	add(object)
-    {
+	{
 		if (arguments.length > 1) {
 			for (var i = 0; i < arguments.length; i++)
 				this.add(arguments[i]);
@@ -36,7 +41,7 @@ export default class HUD
 			return this;
 		}
 
-		if (object instanceof HUDElement) {
+		if (object instanceof BaseElement) {
 			if (object.parent !== undefined) {
 				object.parent.remove(object);
 			}
@@ -48,14 +53,14 @@ export default class HUD
 		}
 
 		else {
-			console.error("HUDElement.add: object not an instance of HUDElement.", object);
+			console.error("HUD.add: object not an instance of HUDElement.", object);
 		}
 
 		return this;
 	}
 
 	remove(object)
-    {
+	{
 		if (arguments.length > 1) {
 			for (var i = 0; i < arguments.length; i++)
 				this.remove(arguments[i]);
@@ -69,45 +74,73 @@ export default class HUD
 			this.children.splice(index, 1);
 		}
 	}
-    
-    getChildrenByType(type)
-    {
-        var result = [],
-            n = this.children.length;
-        
-        while (n--) 
-        {
-            if (this.children[n].type == type)
-                result.push(this.children[n]);
-            
-            if (this.children[n].children.length > 0)
-                result = result.concat(this.children[n].getChildrenByType(type));
-        }
-        
-        return result;
-    }
+
+	getChildrenByType(type)
+	{
+		var result = [],
+			n = this.children.length;
+
+		while (n--)
+		{
+			if (this.children[n].type == type)
+				result.push(this.children[n]);
+
+			if (this.children[n].children.length > 0)
+				result = result.concat(this.children[n].getChildrenByType(type));
+		}
+
+		return result;
+	}
+
+	setScreen(mode)
+	{
+		this.getChildrenByType('HUD.Screen').forEach(this.remove, this);
+
+		switch(mode) {
+			case 'nsd':
+				screen = new NSDScreen(this.ctx);
+				break;
+
+			case 'discussion':
+			default:
+				screen = new DiscussionScreen(this.ctx);
+				break;
+		}
+
+		this.add(screen);
+
+		return screen;
+	}
 
 	clear()
-    {
+	{
 		this.ctx.clearRect(0, 0, this.W, this.H);
 	}
 
-	blackScreen(opacity)
-    {
-		this.ctx.clearRect(0, 0, this.W, this.H);
-		this.ctx.beginPath();
-		this.ctx.fillStyle = 'rgba(0, 0, 0, ' + opacity + ')';
-		this.ctx.rect(0, 0, this.W, this.H);
-		this.ctx.fill();
+	drawBlackScreen(opacity)
+	{
+		this.ctx.save();
+
+		console.log(this.blackScreen);
+
+		this.globalAlpha = this.blackScreen;
+		this.ctx.fillStyle = '#000000';
+		this.ctx.fillRect(0, 0, this.W, this.H);
+
+		this.ctx.restore();
 	}
-    
-    draw(t)
-    {
-        var n = this.children.length;
-        
-        while (n--)
-        {
-            this.children[n].draw(t);
-        }
-    }
+
+	draw(t)
+	{
+		this.ctx.clearRect(0, 0, this.W, this.H);
+
+		var n = this.children.length;
+		while (n--)
+		{
+			this.children[n].draw(t);
+		}
+
+		if (this.blackScreen > 0)
+			this.drawBlackScreen();
+	}
 }

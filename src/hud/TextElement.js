@@ -15,6 +15,7 @@ export default class TextElement extends Element
 		this.y = 0;
 
 		this.maxWidth = 0.9 * this.W;
+		this.marginLeft = 0;
 
 		this.font = (0.06 * this.H) + 'px Calibri';
 		this.color = 'white';
@@ -28,10 +29,11 @@ export default class TextElement extends Element
 	{
 		this.ctx.save();
 
+		this.ctx.globalAlpha = this.opacity;
 		this.ctx.fillStyle = this.color;
 		this.ctx.font = this.font;
 
-		this.writeLine(this.text, this.x, this.y, this.maxWidth);
+		this.writeLine(this.text, this.marginLeft + this.x, this.y, this.maxWidth);
 		// this.writeLine(this.text, this.y, this.maxWidth);
 
 		this.ctx.restore();

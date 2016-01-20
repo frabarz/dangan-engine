@@ -1,6 +1,8 @@
 import BaseScreen from './Screen.js';
 import TextElement from './TextElement.js'
 
+import { NARRATOR } from './../Character.js';
+
 class DiscussionScreen extends BaseScreen
 {
 	constructor(ctx)
@@ -9,16 +11,9 @@ class DiscussionScreen extends BaseScreen
 
 		this.gradients = (function () {
 			var width = ctx.canvas.width,
-				speakerCardBg = ctx.createLinearGradient(0, 0, 0, ctx.canvas.height),
 				protagDiscLeft = ctx.createLinearGradient(0, 0, width, 0),
 				labelDiscLeft = ctx.createLinearGradient(0, 0, width, 0),
 				labelDiscRight = ctx.createLinearGradient(0, 0, width, 0);
-
-			speakerCardBg.addColorStop(0, '#FF0000');
-			speakerCardBg.addColorStop(0.25, '#000000');
-			speakerCardBg.addColorStop(0.5, '#FF0000');
-			speakerCardBg.addColorStop(0.75, '#000000');
-			speakerCardBg.addColorStop(1, '#FF0000');
 
 			protagDiscLeft.addColorStop(0, '#CC0000');
 			protagDiscLeft.addColorStop(0.65, 'rgb(255, 51, 51)');
@@ -33,16 +28,17 @@ class DiscussionScreen extends BaseScreen
 			return {
 				nameprotagLeft: protagDiscLeft,
 				nametagLeft: labelDiscLeft,
-				nametagRight: labelDiscRight,
-				speakerCardBackground: speakerCardBg
+				nametagRight: labelDiscRight
 			};
 		})();
 
-		this.caseNumber = '01';
+		this.caseNumber = '02';
 
 		this.banner_x = 0;
 
-		this.speakerCardRotation = 0;
+		this.speakerCardTimer = 0;
+		this.speakerCardImage = new Image();
+		this.speakerCardImage.src = 'data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==';
 
 		this.dialogue = new TextElement(ctx);
 		this.dialogue.x = 0.05 * this.W;
@@ -52,26 +48,65 @@ class DiscussionScreen extends BaseScreen
 		this.nametag = new TextElement(ctx);
 		this.nametag.x = 0.03 * this.W;
 		this.nametag.y = 0.675 * this.H;
-		this.nametag.font = (0.04 * this.H) + 'px Segoe UI';
+		this.nametag.font = (0.04 * this.H) + 'px DorBlue';
 
 		this.add(this.dialogue, this.nametag);
+
+		console.log(NARRATOR);
 	}
 
 	setDialogue(speaker, text)
 	{
-		this.nametag.text = 'Monokuma'.toUpperCase();
+		if (this.speakerId != speaker.id)
+		{
+			this.generateInterferencePattern();
+			this.interferenceOpacity = 1;
 
+			this.nametag.marginLeft = 0.04 * this.W;
+			this.nametag.opacity = 0;
+		}
+
+		this.speakerId = speaker.id;
+		this.speakerIsProtagonist = speaker.card.counter == 0;
+		this.speakerCardImage.src = speaker.bustSpriteUri;
+
+		this.nametag.text = speaker.name.split("").join(String.fromCharCode(8201));
+
+		this.dialogue.color = DiscussionScreen[speaker.id == NARRATOR ? 'COLOR_NARRATOR' : 'COLOR_CHARACTER'];
 		this.dialogue.text = text;
 		this.dialogue.typewLength = 0;
-
-		if (speaker == 'narrator')
-			this.dialogue.color = DiscussionScreen.COLOR_NARRATOR;
-		else
-			this.dialogue.color = DiscussionScreen.COLOR_CHARACTER;
 	}
 
 	setSpeaker(entity)
 	{
+	}
+
+	generateInterferencePattern()
+	{
+		this.interferencePattern = this.ctx.createLinearGradient(0, 0.08 * this.H, 0, 0.63 * this.H);
+
+		var n,
+			guidea = '0',
+			guideb = '0',
+			y = Math.floor(this.H / 100);
+
+		while (y--)
+		{
+			guidea += Math.floor(Math.random() * 500).toString(2);
+			guideb += Math.floor(Math.random() * 500).toString(2);
+		}
+
+		n = y = Math.min(guidea.length, guideb.length);
+
+		while (y--)
+		{
+			if (guidea[y] != guideb[y])
+			{
+				this.interferencePattern.addColorStop(y / n - 0.005, '#ff3333');
+				this.interferencePattern.addColorStop(y / n, '#ffffff');
+				this.interferencePattern.addColorStop(y / n + 0.005, '#ff3333');
+			}
+		}
 	}
 
 	drawClassTrialBanner()
@@ -103,6 +138,11 @@ class DiscussionScreen extends BaseScreen
 		var y,
 			width = 0.19 * this.W;
 
+		this.speakerCardTimer += 0.03;
+
+		if (this.speakerCardTimer >= 1)
+			this.speakerCardTimer = -1;
+
 		this.ctx.save();
 
 		// Black background
@@ -127,8 +167,11 @@ class DiscussionScreen extends BaseScreen
 		this.ctx.fillText('case', 0.01 * this.W, 0.054 * this.H);
 
 		// Case number
+		this.ctx.textAlign = 'right';
 		this.ctx.fillStyle = '#ff3333';
-		this.ctx.fillText(this.caseNumber, 0.1 * this.W + 0.08 * this.H, 0.054 * this.H);
+		this.ctx.fillText(this.caseNumber, 0.19 * this.W - 0.01 * this.H, 0.054 * this.H);
+
+		this.ctx.restore();
 
 		this.ctx.save();
 
@@ -136,16 +179,23 @@ class DiscussionScreen extends BaseScreen
 		this.ctx.rect(0, 0.075 * this.H, width - 0.005 * this.H, 0.55 * this.H);
 		this.ctx.clip();
 
-		this.speakerCardRotation += 0.03;
-
-		if (this.speakerCardRotation >= 1)
-			this.speakerCardRotation = -1;
-
 		// Card image background gradient
-		this.ctx.fillStyle = this.gradients.speakerCardBackground;
-		this.ctx.fillRect(0, this.speakerCardRotation * this.H / 20, width, this.H)
+		var gradient = this.ctx.createLinearGradient(
+			0, (0.08 - 1.1 + 0.55 * this.speakerCardTimer) * this.H,
+			0, (0.08 + 1.1 + 0.55 * this.speakerCardTimer) * this.H
+			);
+		gradient.addColorStop(0, '#FF0000');
+		gradient.addColorStop(0.25, '#000000');
+		gradient.addColorStop(0.5, '#FF0000');
+		gradient.addColorStop(0.75, '#000000');
+		gradient.addColorStop(1, '#FF0000');
 
-		this.ctx.strokeStyle = '#' + ('0' + Math.floor(Math.abs(this.speakerCardRotation * 255)).toString(16)).slice(-2) + '0000';
+		this.ctx.fillStyle = gradient;
+		this.ctx.fillRect(0, 0, width, this.H);
+
+		gradient = null;
+
+		this.ctx.strokeStyle = '#' + ('0' + Math.floor(Math.abs(this.speakerCardTimer * 255)).toString(16)).slice(-2) + '0000';
 		this.ctx.lineWidth = this.H / 200;
 		// Card image background line pattern
 		y = 0.625 + width / this.H;
@@ -156,6 +206,23 @@ class DiscussionScreen extends BaseScreen
 			this.ctx.lineTo(-0.0025 * this.H, y * this.H - width);
 			this.ctx.stroke();
 			y -= 0.03;
+		}
+
+		y = 1.8 * 0.55 * this.H;
+		this.ctx.drawImage(this.speakerCardImage,
+			(width - y / this.speakerCardImage.naturalHeight * this.speakerCardImage.naturalWidth) / 2,
+			0.075 * this.H,
+			y / this.speakerCardImage.naturalHeight * this.speakerCardImage.naturalWidth,
+			y
+			);
+
+		if (this.interferenceOpacity > 0)
+		{
+			this.ctx.globalAlpha = this.interferenceOpacity;
+			this.ctx.fillStyle = this.interferencePattern;
+			this.ctx.fillRect(0, 0.075 * this.H, width, 0.55 * this.H);
+
+			this.interferenceOpacity -= 0.08;
 		}
 
 		this.ctx.restore();
@@ -177,21 +244,21 @@ class DiscussionScreen extends BaseScreen
 		width = null;
 	}
 
-	drawBackground()
+	drawDialogBackground()
 	{
 		this.ctx.save();
 
 		this.ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
 		this.ctx.fillRect(0, this.H * 0.69, this.W, this.H * 0.31);
 
-		this.ctx.fillStyle = this.gradients.nametagLeft;
+		this.ctx.fillStyle = this.gradients[this.speakerIsProtagonist ? 'nameprotagLeft' : 'nametagLeft'];
 		this.ctx.fillRect(0, this.H * 0.63, this.W, this.H * 0.06);
 
 		this.ctx.fillStyle = 'white';
-		this.ctx.fillRect(0, this.H * 0.69, this.W, this.H * 0.02);
+		this.ctx.fillRect(0, this.H * 0.693, this.W, this.H * 0.02);
 
 		this.ctx.fillStyle = '#FF0066';
-		this.ctx.fillRect(0, this.H * 0.71, this.W, this.H * 0.01);
+		this.ctx.fillRect(0, this.H * 0.713, this.W, this.H * 0.01);
 
 		this.ctx.restore();
 	}
@@ -200,11 +267,18 @@ class DiscussionScreen extends BaseScreen
 	{
 		this.ctx.clearRect(0, 0, this.W, this.H);
 
-		this.drawBackground();
 		this.drawClassTrialBanner();
-		this.drawSpeakerCard();
+		this.drawDialogBackground();
+
+		if (this.speakerId != NARRATOR)
+			this.drawSpeakerCard();
 
 		this.dialogue.draw();
+
+		if (this.nametag.marginLeft > 0)
+			this.nametag.marginLeft -= 0.005 * this.W;
+		if (this.nametag.opacity < 1)
+			this.nametag.opacity += 0.1;
 		this.nametag.draw();
 	}
 }

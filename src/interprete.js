@@ -1,4 +1,5 @@
 import Coordenada from './Coordenada.js';
+import Trayectoria from './Trayectoria.js';
 
 export default {
     Position: function (param) {

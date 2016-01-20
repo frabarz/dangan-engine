@@ -5,6 +5,15 @@
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no" />
 		<style type="text/css">
+@font-face {
+	font-family: "Goodbye Despair";
+	src: url('/resources/GoodbyeDespair.ttf');
+}
+@font-face {
+	font-family: "DorBlue";
+	src: url('/resources/DorBlue.ttf');
+}
+
 body {
 	margin: 0;
 	padding: 0;
@@ -20,6 +29,10 @@ canvas {
 	top: 10px;
 	left: 10px;
 	z-index: 60;
+	opacity: 0;
+}
+#botom:hover {
+	opacity: 1;
 }
 #hud {
 	position: absolute;
