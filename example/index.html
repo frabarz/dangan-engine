@@ -4,14 +4,16 @@
 		<title>dangan-engine - Concept test</title>
 		<meta charset="UTF-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no" />
+		<meta property="og:image" content="/preview.png" />
+		<meta name="twitter:image" content="/preview.png" />
 		<style type="text/css">
 @font-face {
 	font-family: "Goodbye Despair";
-	src: url('/resources/GoodbyeDespair.ttf');
+	src: url('/resources/goodbyedespair.ttf');
 }
 @font-face {
-	font-family: "DorBlue";
-	src: url('/resources/DorBlue.ttf');
+	font-family: "Aero";
+	src: url('/resources/aero.ttf');
 }
 
 body {
@@ -21,6 +23,10 @@ body {
 	overflow: hidden;
 }
 canvas {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
 	display: block;
 	margin: 0 auto;
 }
@@ -29,23 +35,16 @@ canvas {
 	top: 10px;
 	left: 10px;
 	z-index: 60;
-	opacity: 0;
+	opacity: 0.4;
 }
-#botom:hover {
+#boton:hover {
 	opacity: 1;
-}
-#hud {
-	position: absolute;
-	z-index: 10;
-	top: 0;
-	left: 0;
-	right: 0;
 }
 		</style>
 
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r73/three.min.js"></script>
 		<script src="bundle.js"></script>
 	</head>
-	<body><button id="boton">Iniciar</button></body>
+	<body><button id="boton">Start</button></body>
 
 </html>
