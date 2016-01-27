@@ -48,14 +48,12 @@ class DiscussionScreen extends BaseScreen
 		this.nametag = new TextElement(ctx);
 		this.nametag.x = 0.03 * this.W;
 		this.nametag.y = 0.675 * this.H;
-		this.nametag.font = (0.04 * this.H) + 'px DorBlue';
+		this.nametag.font = (0.04 * this.H) + 'px Aero, sans-serif';
 
 		this.add(this.dialogue, this.nametag);
-
-		console.log(NARRATOR);
 	}
 
-	setDialogue(speaker, text)
+	setDialogue(speaker, text, thought)
 	{
 		if (this.speakerId != speaker.id)
 		{
@@ -67,18 +65,20 @@ class DiscussionScreen extends BaseScreen
 		}
 
 		this.speakerId = speaker.id;
-		this.speakerIsProtagonist = speaker.card.counter == 0;
+		this.speakerIsProtagonist = (speaker.card && speaker.card.counter == 0);
 		this.speakerCardImage.src = speaker.bustSpriteUri;
 
-		this.nametag.text = speaker.name.split("").join(String.fromCharCode(8201));
+		this.nametag.text = speaker.name.split("").join(String.fromCharCode(8202));
 
-		this.dialogue.color = DiscussionScreen[speaker.id == NARRATOR ? 'COLOR_NARRATOR' : 'COLOR_CHARACTER'];
 		this.dialogue.text = text;
 		this.dialogue.typewLength = 0;
-	}
 
-	setSpeaker(entity)
-	{
+		if (thought)
+			this.dialogue.color = this.constructor.COLOR_THOUGHT;
+		else if (speaker.id == NARRATOR)
+			this.dialogue.color = this.constructor.COLOR_NARRATOR;
+		else
+			this.dialogue.color = this.constructor.COLOR_CHARACTER;
 	}
 
 	generateInterferencePattern()
@@ -96,7 +96,7 @@ class DiscussionScreen extends BaseScreen
 			guideb += Math.floor(Math.random() * 500).toString(2);
 		}
 
-		n = y = Math.min(guidea.length, guideb.length);
+		n = (y = Math.min(guidea.length, guideb.length));
 
 		while (y--)
 		{
@@ -208,7 +208,7 @@ class DiscussionScreen extends BaseScreen
 			y -= 0.03;
 		}
 
-		y = 1.8 * 0.55 * this.H;
+		y = 1.6 * 0.55 * this.H;
 		this.ctx.drawImage(this.speakerCardImage,
 			(width - y / this.speakerCardImage.naturalHeight * this.speakerCardImage.naturalWidth) / 2,
 			0.075 * this.H,
@@ -285,5 +285,6 @@ class DiscussionScreen extends BaseScreen
 
 DiscussionScreen.COLOR_NARRATOR = '#47FF19';
 DiscussionScreen.COLOR_CHARACTER = 'white';
+DiscussionScreen.COLOR_THOUGHT = '#5ac3d8';
 
 export default DiscussionScreen

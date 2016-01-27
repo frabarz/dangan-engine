@@ -1,152 +1,99 @@
-function Coordenada(input) {
-    this._x = 0;
-    this._y = 0;
-    this._z = 0;
+class Coordenada
+{
+	constructor(x, y, z)
+	{
+		this.x = x || 0;
+		this.y = y || 0;
+		this.z = z || 0;
+	}
 
-    this.esferica = input.esferica || !!input[4];
+	get r()
+	{
+		return Math.sqrt(this.x * this.x + this.y * this.y + (this.spherical ? this.z * this.z : 0));
+	}
+	set r(r)
+	{
+		if (this.spherical)
+			this.setSpherical(r, this.t, this.p);
+		else
+			this.setPolar(r, this.p);
+	}
 
-    this.cx = input.cx || 0;
-    this.cy = input.cy || 0;
-    this.cz = input.cz || 0;
+	get t()
+	{
+		return Math.acos(this.z / Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z));
+	}
+	set t(t)
+	{
+		this.setSpherical(this.r, t, this.p);
+	}
 
-    if (input instanceof Coordenada) {
-        this._x = input._x;
-        this._y = input._y;
-        this._z = input._z;
-    }
+	get p()
+	{
+		return Math.atan2(this.y, this.x);
+	}
+	set p(p)
+	{
+		if (this.spherical)
+			this.setSpherical(this.r, this.t, p);
+		else
+			this.setPolar(this.r, p);
+	}
 
-    else if (input.hasOwnProperty('x')) {
-        this._x = input.x;
-        this._y = input.y;
-        this._z = input.z;
-    }
+	get vector3()
+	{
+		return new THREE.Vector3(this.x, this.y, this.z);
+	}
 
-    else if (input.hasOwnProperty('t')) {
-        this.esferica = true;
-        this.setEsferica(input);
-    }
+	toString()
+	{
+		return "{x:" + this.x + ", y:" + this.y + ", z: " + this.z + "}";
+	}
 
-    else if (input.hasOwnProperty('p')) {
-        this.setPolar(input);
-        this.z = input.z;
-    }
+	setSpherical(r, t, p)
+	{
+		// t: inclinación, 0°-180°
+		// p: azimuth, 0°-360°
 
-    else if (Array.isArray(input)) {
-        this._x = input[0];
-        this._y = input[1];
-        this._z = input[2];
-    }
+		this.x = r * Math.sin(t) * Math.cos(p);
+		this.y = r * Math.sin(t) * Math.sin(p);
+		this.z = r * Math.cos(t);
+	}
+
+	setPolar(r, p, z)
+	{
+		this.x = r * Math.cos(p);
+		this.y = r * Math.sin(p);
+		this.z = isFinite(z) ? z : this.z;
+	}
 }
 
-Object.defineProperties(Coordenada.prototype, {
-    toString: {
-        writable: false,
-        value: function () {
-            return JSON.stringify(this.vectorThree);
-        }
-    },
-    x: {
-        get: function () {
-            return this._x - this.cx;
-        },
-        set: function (i) {
-            this._x = this.cx + i;
-        }
-    },
-    y: {
-        get: function () {
-            return this._y - this.cy;
-        },
-        set: function (i) {
-            this._y = this.cy + i;
-        }
-    },
-    z: {
-        get: function () {
-            return this._z - this.cz;
-        },
-        set: function (i) {
-            this._z = this.cz + i;
-        }
-    },
-    r: {
-        get: function () {
-            var x = this._x - this.cx,
-                y = this._y - this.cy,
-                z = this._z - this.cz;
-            return Math.sqrt(x * x + y * y + (this.esferica ? z * z : 0));
-        },
-        set: function (i) {
-            if (this.esferica)
-                this.setEsferica(i, this.t, this.p);
-            else
-                this.setPolar(i, this.p);
-        }
-    },
-    t: {
-        get: function () {
-            var x = this._x - this.cx,
-                y = this._y - this.cy,
-                z = this._z - this.cz;
-            return Math.acos(z / Math.sqrt(x * x + y * y + z * z));
-        },
-        set: function (i) {
-            this.setEsferica(this.r, i, this.p);
-        }
-    },
-    p: {
-        get: function () {
-            return Math.atan2(this._y - this.cy, this._x - this.cx);
-        },
-        set: function (i) {
-            if (this.esferica) {
-                this.setEsferica(this.r, this.t, i);
-            } else {
-                this.setPolar(this.r, i);
-            }
-        }
-    },
-    centro: {
-        get: function () {
-            return [this.cx, this.cy, this.cz];
-        },
-        set: function (input) {
-            this.cx = input.x || input[0];
-            this.cy = input.y || input[1];
-            this.cz = input.z || input[2];
-        }
-    },
-    vectorThree: {
-        get: function () {
-            return new THREE.Vector3(this.x, this.y, this.z);
-        }
-    },
-    setEsferica: {
-        value: function (r, t, p) {
-            // t: inclinación, 0°-180°
-            // p: azimuth, 0°-360°
-            if (r.hasOwnProperty('t') && r.hasOwnProperty('p')) {
-                p = r.p;
-                t = r.t;
-                r = r.r;
-            }
+Coordenada.parse = function (input)
+{
+	if (input instanceof this)
+		return input;
 
-            this._x = this.cx + r * Math.sin(t) * Math.cos(p);
-            this._y = this.cy + r * Math.sin(t) * Math.sin(p);
-            this._z = this.cz + r * Math.cos(t);
-        }
-    },
-    setPolar: {
-        value: function (r, p) {
-            if (r.hasOwnProperty('p')) {
-                p = r.p;
-                r = r.r;
-            }
+	else if (input.hasOwnProperty('x'))
+		return new this(input.x, input.y, input.z);
 
-            this._x = this.cx + r * Math.cos(p);
-            this._y = this.cy + r * Math.sin(p);
-        }
-    }
-});
+	else if (input.hasOwnProperty('t')) {
+		let point = new this();
+		point.spherical = true;
+		point.setSpherical(input.r, input.t, input.p);
+		return point;
+	}
+
+	else if (input.hasOwnProperty('p')) {
+		let point = new this();
+		point.setPolar(input.r, input.p, input.z);
+		return point;
+	}
+
+	else if (Array.isArray(input))
+		return new this(input[0], input[1], input[2]);
+
+	else
+		throw new Error("Coordenada.parse: Couldn't parse input.");
+}
 
 export default Coordenada

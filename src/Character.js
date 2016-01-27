@@ -8,9 +8,7 @@ class Character
 		this.texture = new THREE.Texture(new Image);
 		this.texture.image.onload = ImageLoadHandler.bind(this.texture);
 
-		this.changeSprite(1);
-
-		this.card = new CharacterCard(this);
+		(character.id != Character.NARRATOR) && this.changeSprite('sprite' in character ? character.sprite : 1);
 	}
 
 	get fullbodySpriteUri()
@@ -37,60 +35,33 @@ Character.BUST_PATH = 'busts/';
 Character.NARRATOR = 'narrator';
 
 function ImageLoadHandler() {
+	var i, img_data,
+		img_w = Math.floor(this.image.naturalWidth / 3),
+		img_h = this.image.naturalHeight,
+		ctx = document.createElement('canvas').getContext('2d');
+
+	ctx.canvas.width = img_w;
+	ctx.canvas.height = img_h;
+
+	ctx.drawImage(this.image,
+		img_w, 0, img_w, img_h,
+		img_w, 0, img_w, img_h);
+
+	img_data = ctx.getImageData(img_w, 0, img_w, img_h);
+
+	for(i = 0; i < img_data.data.length; i += 4)
+	{
+		if (img_data.data[i] != 0)
+		{
+			this.headLevel = (img_h - Math.floor(i / img_w)) * 6 / 7;
+			break;
+		}
+	}
+
+	img_data = null;
+	ctx = null;
+
 	this.needsUpdate = true;
 }
-
-class CharacterCard extends THREE.Object3D
-{
-	constructor(character)
-	{
-		super();
-
-		this.card_front = new THREE.Mesh(
-			CharacterCard.geometry,
-			new THREE.MeshBasicMaterial({
-					map: character.texture,
-					transparent: true,
-					color: 0xFFFFFF,
-					side: THREE.FrontSide
-				})
-			);
-		this.card_front.position.x = 0.02;
-
-		this.card_back = new THREE.Mesh(
-				CharacterCard.geometry,
-				new THREE.MeshBasicMaterial({
-					map: character.texture,
-					transparent: true,
-					color: 0x000000,
-					side: THREE.BackSide
-				})
-			);
-		this.card_back.position.x = -0.02;
-
-		this.add(this.card_front, this.card_back);
-	}
-
-	locateInStands(position)
-	{
-		this.counter = Math.abs(position % 16);
-
-		var ang = (this.counter / 16) * (2 * Math.PI);
-
-		this.rotation.x = Math.PI / 2;
-		this.rotation.y = ang - Math.PI / 2;
-
-		this.position.set(22 * Math.cos(ang), 22 * Math.sin(ang), 11);
-
-		ang = null;
-	}
-}
-
-CharacterCard.geometry = new THREE.PlaneBufferGeometry(10, 20);
-
-Object.defineProperty(Character, 'Card', {
-	value: CharacterCard,
-	writable: false
-});
 
 export default Character

@@ -1,153 +1,91 @@
 import Coordenada from './Coordenada.js';
-
-import EASE from './easing.js';
-import INTERPRETE from './interprete.js';
+import Videographer from './Videographer.js';
 
 class Animation
 {
-	constructor(trial)
+	constructor(renderers)
 	{
-		this.trial = trial;
-		this.promise = Promise.resolve(true);
+		this.scene = renderers.scene;
+		this.hud = renderers.hud;
 	}
 
-	stop()
+	cutTo(param)
 	{
-		cancelAnimationFrame(Animation.cuadro);
-	}
+		return new Promise(function (end) {
+			this.processor = function() {
+				if ('fov' in param) {
+					this.mainCamera.fov = param.fov;
+					this.mainCamera.updateProjectionMatrix();
+				}
 
-	delay(time)
-	{
-		this.promise = this.promise.then(function () {
-			return new Promise(function(resolve, reject) {
-				setTimeout(resolve, time);
-			});
-		});
+				if ('position' in param)
+					this.mainCamera.position.copy(Coordenada.parse(param.position));
 
-		return this;
-	}
+				if ('up' in param)
+					this.mainCamera.up.copy(Coordenada.parse(param.up));
 
-	loadScript(script)
-	{
-		var self = this;
-		script.forEach(function (item) {
-			if ('sprite' in item)
-				self.changeSprite(item.character, item.sprite);
+				if ('direction' in param)
+					this.mainCamera.lookAt(Coordenada.parse(param.direction));
 
-			self.transicion(item);
-		});
-
-		return this;
-	}
-
-	changeSprite(persona, sprite)
-	{
-		this.trial.characters[persona].changeSprite(sprite);
-		return this;
-	}
-
-	cortarHacia(newcam)
-	{
-		var trial = this.trial;
-		this.promise = this.promise.then(function () {
-			cancelAnimationFrame(Animation.cuadro);
-
-			if ('fov' in newcam) {
-				trial.mainCamera.fov = newcam.fov;
-				trial.mainCamera.updateProjectionMatrix();
-			}
-
-			if ('up' in newcam)
-				trial.mainCamera.up.copy(newcam.up);
-
-			if ('position' in newcam)
-				trial.mainCamera.position.copy(newcam.position);
-
-			if ('lookat' in newcam)
-				trial.mainCamera.lookAt(newcam.lookat.vectorThree);
-
-			trial.render();
-		});
-
-		return this;
+				this.processor = null;
+				param = null;
+				end();
+			};
+		}.bind(this.scene));
 	}
 
 	transicion(param)
 	{
-		param.trial = this.trial;
-		this.promise = this.promise.then(function () {
-			var trial = param.trial,
-				duration = param.duration || 10,
-				easing = EASE[param.easing] || EASE.linear,
-				delta = {};
+		if ('preset' in param)
+			return this[param.preset](param);
+
+		return new Promise(function (end) {
+			var bp = new Videographer(param.duration || 6000, param.path, param.easing);
 
 			if ('fov' in param)
-				delta.fov = new INTERPRETE.FOV(param);
-
-			if ('up' in param)
-				delta.up = new INTERPRETE.Up(param);
+				bp.setupFOV(
+					param.fov.start || this.mainCamera.fov,
+					param.fov.end || param.fov,
+					param.fov
+				);
 
 			if ('position' in param)
-				delta.position = new INTERPRETE.Position(param);
+				bp.setupPosition(
+					param.position.start || this.mainCamera.position,
+					param.position.end || param.position,
+					param.position
+				);
 
-			if ('lookat' in param)
-				delta.lookat = new INTERPRETE.LookAt(param);
+			if ('up' in param)
+				bp.setupUp(
+					param.up.start || this.mainCamera.up,
+					param.up.end || param.up,
+					param.up
+				);
+
+			if ('direction' in param)
+				bp.setupDirection(
+					param.direction.start || new THREE.Vector3(0, 0, -10).applyMatrix4(this.mainCamera.matrixWorld),
+					param.direction.end || param.direction,
+					param.direction
+				);
 
 			param = null;
 
-			return new Promise(function (resolve, reject) {
-				var inicio;
+			this.processor = function (now) {
+				const avance = bp.delta(now);
 
-				function transicion(now) {
-					var avance = Math.min(1, (now - inicio) / duration),
-						recorrido = easing(avance);
+				bp.runStage(this.mainCamera, avance);
 
-					if ('fov' in delta)
-						delta.fov.apply(recorrido);
+				if (avance > 1) {
+					this.processor = null;
+					bp = null;
 
-					if ('up' in delta)
-						delta.up.apply(recorrido);
-
-					if ('position' in delta)
-						delta.position.apply(recorrido);
-
-					if ('lookat' in delta)
-						delta.lookat.apply(recorrido);
-
-					trial.render();
-
-					if (avance < 1) {
-						Animation.cuadro = requestAnimationFrame(transicion);
-					} else {
-						delta = easing = duration = null;
-						inicio = now = null;
-						avance = recorrido = null;
-						resolve();
-					}
+					end();
 				}
-
-				cancelAnimationFrame(Animation.cuadro);
-				inicio = window.performance.now();
-				transicion(inicio);
-			});
-		});
-
-		return this;
+			};
+		}.bind(this.scene));
 	}
 }
-
-Object.defineProperties(Animation, {
-	cuadro: {
-		value: 0,
-		writable: true
-	},
-
-	step: {
-		value: function (step) {
-			this.cuadro = requestAnimationFrame(step);
-		},
-		writable: false
-	}
-});
 
 export default Animation

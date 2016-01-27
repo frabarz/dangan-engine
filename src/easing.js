@@ -1,5 +1,8 @@
 export default {
     // t: start time, b: begInnIng value, c: change In value, d: duration
+	none: function() {
+		return 1;
+	},
     linear: function (x) {
         return x;
     },
