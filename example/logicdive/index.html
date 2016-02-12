@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, user-scalable=no" />
+
+	<title>Logic Dive test / dangan-engine</title>
+
+	<meta property="og:image" content="/preview.png" />
+	<meta name="twitter:image" content="/preview.png" />
+
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r73/three.js"></script>
+	<script src="https://rawgit.com/mrdoob/three.js/master/examples/js/loaders/ColladaLoader.js"></script>
+	<style>
+body {
+	margin: 0;
+}
+canvas {
+	display: block;
+	margin: 0 auto;
+}
+.labels {
+	position: absolute;
+	z-index: 10;
+	padding: 0.5em 1em;
+
+	font-family: Consolas, Courier New, Courier, monospace;
+	font-size: 12px;
+
+	background-color: rgba(0,0,0,0.7);
+	color: #fff;
+}
+.label {
+	color: #069;
+	font-weight: 700;
+}
+	</style>
+</head>
+
+<body>
+	<div class="labels">
+		<div>P Calculado: <span class="label player-p"></span></div>
+		<div>X Calculado: <span class="label player-x-calc"></span></div>
+		<div>X Dibujado: <span class="label player-x"></span></div>
+	</div>
+	<script src="bundle.js"></script>
+</body>
+
+</html>
