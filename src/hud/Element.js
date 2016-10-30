@@ -127,8 +127,14 @@ export default class HUDElement
 		this.events[type].push(callback);
 	}
 
-	draw(t)
+	draw(time)
 	{
 		throw new Error('HUD.Element$draw: Method not implemented.', this.type);
+	}
+
+	drawChildren(time)
+	{
+		for (let child, i = 0; child = this.children[i]; i++)
+			child.draw(time);
 	}
 }

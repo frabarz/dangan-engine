@@ -2,7 +2,7 @@
 /typings
 /resources
 /lib
-/editor
+/public/resources
 /.vscode
 *.map
 .htaccess

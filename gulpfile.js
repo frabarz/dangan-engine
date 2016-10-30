@@ -7,6 +7,7 @@ var uglify = require('gulp-uglify'),
 	browserify = require('browserify'),
 	sourcemaps = require('gulp-sourcemaps');
 
+
 function bundle(bundler, filename) {
 	return bundler
 		.transform(babelify)
@@ -14,32 +15,27 @@ function bundle(bundler, filename) {
 		.on('error', function (err) { console.error(err.stack); })
 		.pipe(source(filename))
 		.pipe(buffer())
-		.pipe(sourcemaps.init({ loadMaps: true }))
+		// .pipe(sourcemaps.init({ loadMaps: true }))
 		// .pipe(uglify()) // Use any gulp plugins you want now
-		.pipe(sourcemaps.write('.'))
+		// .pipe(sourcemaps.write('.'))
 }
 
 gulp.task('pack', function () {
 	var bundler = browserify({
-		entries: './example/index.js',
+		entries: './public/discussion/index.js',
 		debug: true
 	});
 
 	return bundle(bundler, 'bundle.js')
-		.pipe(gulp.dest('./example'));
+		.pipe(gulp.dest('./public/discussion'));
 });
 
-gulp.task('logicdive', function() {
+gulp.task('dive', function() {
 	var bundler = browserify({
-		entries: './example/logicdive/index.js',
+		entries: './public/logicdive/index.js',
 		debug: true
 	});
 
 	return bundle(bundler, 'bundle.js')
-		.pipe(gulp.dest('./example/logicdive'));
+		.pipe(gulp.dest('./public'));
 });
-
-gulp.task('build', ['logicdive'], function() {
-	return gulp.src('./node_modules/three/three.js')
-		.pipe(gulp.dest('./example'));
-})

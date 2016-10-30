@@ -25,7 +25,7 @@ export default class TextElement extends Element
 		this.typewLength = 0;
 	}
 
-	draw(t)
+	draw(time)
 	{
 		this.ctx.save();
 
@@ -34,7 +34,6 @@ export default class TextElement extends Element
 		this.ctx.font = this.font;
 
 		this.writeLine(this.text, this.marginLeft + this.x, this.y, this.maxWidth);
-		// this.writeLine(this.text, this.y, this.maxWidth);
 
 		this.ctx.restore();
 	}
@@ -49,7 +48,8 @@ export default class TextElement extends Element
 
 	writeLine(text, x, y, maxWidth)
 	{
-		text = this.typewrite ? this.typewriteStep(text) : text;
+		if (this.typewrite)
+			text = this.typewriteStep(text);
 
 		var lastWord = '',
 			size = this.ctx.measureText(text).width,
@@ -73,7 +73,7 @@ export default class TextElement extends Element
 		}
 		else
 		{
-			throw new Error('El texto contiene una palabra más ancha que el ancho máximo del canvas.');
+			throw new Error('TextElement: El texto contiene una palabra más ancha que el ancho máximo del canvas.');
 		}
 
 		lastWord = null;

@@ -11,6 +11,8 @@ export default class Trial
 
 		this.characters = {};
 		this.renderer = {};
+
+		this.stage = null;
 	}
 
 	setupRenderer(type, renderer)

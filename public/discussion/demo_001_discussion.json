@@ -1,0 +1,246 @@
+[
+	{
+		"speaker": "monokuma",
+		"sprite": 1,
+		"dialogue": [
+			"Let's start off with a simple explanation! You guys' votes determine the trial's outcome.",
+			"Finger the true villain, and only the villain gets punished. But make the wrong accusation...",
+			"...and everyone else gets punished, leaving your deceiver to graduate, freeee and cleeeear!"
+		],
+		"camera": {
+			"up": [0, 0, 1],
+			"position": [-38, 0, 18],
+			"direction": [-48, 0, 18],
+			"fov": 45
+		},
+		"animation": [
+			{
+				"duration": 6000,
+				"path": "linear",
+				"position": [-35, 0, 15.6]
+			}
+		]
+	},
+	{
+		"speaker": "makoto",
+		"sprite": 1,
+		"dialogue": [
+			"Is one of us... really the culprit?"
+		],
+		"camera": {
+			"position": [-40, 0, 30],
+			"direction": [23, 0, 18]
+		},
+		"animation": [
+			{
+				"duration": 5000,
+				"path": "linear",
+				"position": [8, 0, 16],
+				"direction": {
+					"end": [24, 0, 15],
+					"easing": "none"
+				}
+			}
+		]
+	},
+	{
+		"speaker": "monokuma",
+		"dialogue": [
+			"You betcha."
+		],
+		"camera": {
+			"position": [-38, 0, 18],
+			"direction": [-48, 0, 18]
+		}
+	},
+	{
+		"speaker": "kiyotaka",
+		"dialogue": [
+			"All right! Everyone close your eyes! Then put your hand up if you're the killer!"
+		],
+		"camera": {
+			"position": [4.75, -4.75, 7.5],
+			"direction": [14, -14, 8]
+		},
+		"animation": [
+			{
+				"duration": 250,
+				"position": [4.75, -4.75, 12]
+			},
+			{
+				"duration": 5000,
+				"position": [4.75, -4.75, 14]
+			}
+		]
+	},
+	{
+		"speaker": "mondo",
+		"dialogue": [
+			"You a dumbass? Who'd raise their hand?"
+		],
+		"camera": {
+			"up": [-0.3, 0, 1],
+			"position": {
+				"r": 8,
+				"p": 4,
+				"z": 16
+			},
+			"direction": {
+				"r": 16,
+				"p": 4,
+				"z": 16
+			}
+		},
+		"animation": [
+			{
+				"duration": 5000,
+				"path": "circular",
+				"position": {
+					"r": 8,
+					"p": 3.87,
+					"z": 16
+				},
+				"direction": {
+					"r": 16,
+					"p": 3.87,
+					"z": 16,
+					"path": "linear"
+				}
+			}
+		]
+	},
+	{
+		"speaker": "kyouko",
+		"dialogue": [
+			"Can this wait? There's something I'd like to ask before we begin...",
+			" ",
+			"What... exactly... is the meaning of that?"
+		],
+		"camera": {
+			"up": [0, 0, 1],
+			"position": {
+				"r": 9,
+				"p": 4.85,
+				"z": 16
+			},
+			"direction": {
+				"r": 16,
+				"p": 4.85,
+				"z": 16
+			}
+		},
+		"animation": [
+			{
+				"duration": 300,
+				"path": "circular",
+				"position": {
+					"r": 9,
+					"p": 4.4,
+					"z": 16
+				},
+				"direction": {
+					"r": 16,
+					"p": 4.4,
+					"z": 16
+				}
+			},
+			{
+				"duration": 3050,
+				"path": "circular",
+				"position": {
+					"r": 9,
+					"p": 4.31,
+					"z": 16
+				},
+				"direction": {
+					"r": 16,
+					"p": 4.31,
+					"z": 16
+				}
+			},
+			{
+				"duration": 100,
+				"easing": "none",
+				"position": {
+					"r": 8,
+					"p": 2.74,
+					"z": 12
+				},
+				"direction": {
+					"r": 23,
+					"p": 2.74,
+					"z": 14
+				}
+			},
+			{
+				"duration": 7000,
+				"position": {
+					"r": 5,
+					"p": 2.74,
+					"z": 12
+				},
+				"direction": {
+					"r": 23,
+					"p": 2.74,
+					"z": 14
+				}
+			}
+		]
+	},
+	{
+		"speaker": "monokuma",
+		"dialogue": [
+			"Wouldn't it be sad if he were left out just 'cause he died? Friendship can overcome life and death!"
+		]
+	},
+	{
+		"speaker": "monokuma",
+		"dialogue": [
+			"Welp, that's more than enough introductory hoo-hah... Let's get this party started!",
+			"How 'bout we start things off with a summary of what went down? Well go on, get crackin'!!"
+		],
+		"camera": {
+			"position": [-40, 0, 18.5],
+			"direction": [-48, 0, 18.5]
+		},
+		"animation": [
+			{
+				"duration": 2000,
+				"position": [-40, 0, 17.5]
+			}
+		]
+	},
+	{
+		"speaker": "narrator",
+		"dialogue": [
+			"When an important question or new information about the case arises, a Nonstop Debate will begin.",
+			"In this phase of the trial, characters speak one after another and conversation proceeds automatically.",
+			"If you spot a lie or contradiction in something someone says...",
+			"...refute it with your \"Ammunition\".",
+			"Only Ammunition relevant to the debate will be loaded into your Ammo Cylinder.",
+			"Hidden somewhere among them is the one piece of Ammunition you need to make your refutation.",
+			"Pay close attention to everyone's assertions, and smash the contradiction with your Ammunition.",
+			"You can check the controls at any time during a Nonstop Debate by pressing the START button."
+		]
+	},
+	{
+		"speaker": "makoto",
+		"thought": true,
+		"dialogue": [
+			"Here goes... The first step to finding the killer...",
+			"If I notice something strange and don't say anything...",
+			"...it's not just mine, but everyone's lives in danger!"
+		],
+		"animation": [
+			{
+				"preset": "cuestionamiento",
+				"azimuth": 0,
+				"duration": 4000
+			}
+		]
+	},
+	{
+		"queue": "nsd",
+		"file": "demo_002_nsd.json"
+	}
+]

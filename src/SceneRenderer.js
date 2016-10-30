@@ -13,6 +13,7 @@ export default class SceneRenderer
 			antialias: true,
 			// preserveDrawingBuffer: true
 		});
+		this.renderer.setPixelRatio(window.devicePixelRatio);
 		this.renderer.setClearColor(0x000000, 1);
 		this.renderer.setSize(width, height);
 
@@ -76,6 +77,7 @@ export default class SceneRenderer
 		ang = null;
 	}
 
+	// TODO: find a better way
 	heIsHere(thebear)
 	{
 		let card = new CharacterCard(thebear);

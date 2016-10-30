@@ -89,7 +89,7 @@ function setup() {
 
 		renderer.frame = requestAnimationFrame(render);
 		setTimeout(function () {
-			tube.speed.z = 1;
+			tube.speed.z = 0.5;
 		}, 3000);
 	});
 }
@@ -117,12 +117,14 @@ function render(t) {
 		// Friction
 		if (tube.speed.z > 2) tube.speed.z *= 0.95;
 
-		if (player.jumpTimer > 1) {
+		// Jump
+		if (player.jumpTimer > 0.9) {
 			player.mesh.rotation.x = -0.15 * (1 + Math.sin(2 * Math.PI * (player.jumpTimer - 0.25)));
-			player.mesh.position.y = 5 * (2 - player.jumpTimer);
-			player.jumpTimer -= 0.05;
+			player.mesh.position.y = 6 * (2 - player.jumpTimer);
+			player.elevate -= tube.speed.z;
+			player.jumpTimer = 1 + player.elevate / 25;
 		} else if (player.jumpTimer > 0) {
-			player.mesh.position.y = 5 * (1 - Math.pow(player.jumpTimer - 1, 2));
+			player.mesh.position.y = 6 * (1 - Math.pow(player.jumpTimer - 1, 2));
 			player.jumpTimer -= 0.03;
 		}
 
@@ -169,6 +171,7 @@ function render(t) {
 
 		if (command.keyboard[32] && player.jumpTimer < 0.1) {
 			// SPACE
+			player.elevate = 25;
 			player.jumpTimer = 2;
 		}
 
@@ -203,7 +206,7 @@ function render(t) {
 
 		player.mesh.position.y = Math.max(0, player.mesh.position.y);
 
-		document.querySelector('.label.player-p').textContent = player.mesh.rotation.x;
+		document.querySelector('.label.player-p').textContent = tube.speed.z;
 		document.querySelector('.label.player-x-calc').textContent = player.newPX;
 		document.querySelector('.label.player-x').textContent = player.position.x;
 	}

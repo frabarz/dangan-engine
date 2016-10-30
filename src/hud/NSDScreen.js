@@ -15,10 +15,13 @@ export default class NSDScreen extends BaseScreen
 	addBullet(label)
 	{
 		var bullet = new NSDBullet(this.ctx);
+		this.cylinder.bullets.push(bullet);
 	}
 
 	draw()
 	{
-
+		this.ctx.clearRect(0, 0, this.W, this.H);
+		
+		this.cylinder.draw();
 	}
 }

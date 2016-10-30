@@ -1,0 +1,73 @@
+<html>
+    <head>
+    </head>
+    <body>
+        <h1>Danganengine</h1>
+        <p>This demo should work fine in any modern navigator, but it's not guaranteed since it's just a pre alpha. The sprites, the courtroom, the game HUD and the camera movements are customizable, and the whole script is read in realtime from a JSON file.</p>
+        <p>I'll go to the point. The objective for this is offer a module package to be able to make more than just that demo. With the right code, it would be easy make a chat application to RP class trials in a near-game environment, or program a story in game format.</p>
+        <p>I started working in this 2 years ago, but only for a few weeks a year. A month ago I decided to take it more seriously and apply some things I've learned in these 2 years, node.js and modules specifically. As I said earlier, the project is currently in prealpha so the code will change. The project is <a href="https://github.com/frabarz/dangan-engine">hosted on github</a> if you want to follow the development. I'm still an amateur, so if anyone want to report bugs or send pull requests, you're welcome to.</p>
+
+        <h3>Distribution</h3>
+        <p>Most of the resources to make this demo work are copyright from the game's developer, so I can't distribute them in this repo. However, if you can get them from other sources, this is the tree structure that makes it work:</p>
+        <ul>
+            <li>/public
+                <ul>
+                    <li>/resources
+                        <ul>
+                            <li>/fonts
+                                <ul>
+                                    <li>aero.ttf: It's a free font available from dafonts.com</li>
+                                    <li>goodbyedespair.ttf: A fan-made ripoff based on the pixel font used in the japanese version of Super Danganronpa 2.</li>
+                                </ul>
+                            </li>
+                            <li>/sprites
+                                <ul>
+                                    <li>/&lt;character first name&gt;
+                                        <ul>
+                                            <li>1.png</li>
+                                            <li>2.png</li>
+                                            <li>...</li>
+                                        </ul>
+                                    </li>
+                                    <li>/...</li>
+                                </ul>
+                            </li>
+                            <li>/textures
+                                <ul>
+                                    <li>*.svg: I made these and are part of this repo.</li>
+                                    <li>alfombraF.png: plain red rug.</li>
+                                    <li>alfombraR.png: red rug with golden borders.</li>
+                                    <li>chapter1-guardapolvo.png: wood baseboard.</li>
+                                    <li>chapter1-marcos.png: golden pillars on the sides of the curtains.</li>
+                                    <li>chapter1-salida.png: exit doors' curtains.</li>
+                                    <li>chapter1-wallpaper.png: blue wallpaper.</li>
+                                    <li>clouds.jpg: a 256x256 Photoshop generated image using the Clouds filter. Is used in the cyan bar.</li>
+                                    <li>wood.jpg: a 512x512 image texture of wood. Is used in the stands.</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+        </ul>
+        <p>The sprites and textures from the game are available in tumblr and/or some game decompilation databases. You can use the browser inspector to check the files as they're requested.</p>
+
+        <h3>Examples</h3>
+        <ul>
+            <li><a href="/discussion/">Normal discussion phase</a></li>
+            <li><a href="/nsd/">Non-Stop Debate [not available yet]</a></li>
+            <li><a href="/logicdive/">Logic Dive [Concept test]</a></li>
+        </ul>
+
+        <h3>Building</h3>
+        <p>The project is being developed with ES6 javascript, in hopes to port it to TypeScript in the future.</p>
+        <p>If you want to make modifications to the source, you have to re-build it using gulp. You must have nodejs installed.</p>
+        <ol>
+            <li>Open a terminal in the root folder of the project.</li>
+            <li>Execute <code>npm install</code> to get the required node_modules.</li>
+            <li>Execute <code>gulp pack</code> to rebuild the discussion example.</li>
+        </ol>
+        <p>In case gulp is not working, check if <code>gulp-cli</code> is correctly installed in you global environment.</p>
+        <p>You can check the gulpfile.js in the root folder for other methods to build other examples.</p>
+    </body>
+</html>
